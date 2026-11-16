@@ -50,7 +50,7 @@ for %%F in (translate_words_map_th translate_words_map_th_diff) do (
 
 echo.
 if /i "%~1"=="nocopy" (
-    echo [4/4] Skipped installing into the game ^(nocopy^) - files are in workuild
+    echo [4/4] Skipped installing into the game ^(nocopy^) - files are in work\build
     goto :status
 )
 echo [4/4] Installing into the game...
