@@ -24,11 +24,14 @@ import sys
 import zipfile
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import config  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
 KIT = ROOT / "release"
 BUILD = ROOT / "work" / "build"
 ORIG = ROOT / "backup" / "original" / "Package"
-GAME = Path(r"D:\steam\steamapps\common\Where Winds Meet")
+GAME = config.game_dir()
 FILES = ["translate_words_map_th", "translate_words_map_th_diff"]
 KIT_FILES = ["install.bat", "play.bat", "uninstall.bat", "wwm-thai.ps1", "README.txt"]
 

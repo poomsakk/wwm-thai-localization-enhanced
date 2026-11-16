@@ -1,0 +1,5 @@
+# Python 3.10+ ; install with:  python -m pip install -r requirements.txt
+zstandard>=0.21     # game locale files are zstd-compressed (tools/wwmloc.py)
+pypinyin>=0.50      # Chinese -> Thai transliteration of new names (tools/translit.py)
+# optional, only for tools/claude_translate.py (translation through the Claude API):
+# anthropic

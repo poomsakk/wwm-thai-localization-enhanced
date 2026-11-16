@@ -5,7 +5,13 @@ REM Build the Thai mod from all translated chunks and install it into the game.
 REM No AI is used here - this only runs local Python tools.
 
 cd /d "%~dp0"
-set "GAME=D:\steam\steamapps\common\Where Winds Meet"
+set "GAME="
+for /f "delims=" %%G in ('python -I "%~dp0tools\config.py" game') do set "GAME=%%G"
+if not defined GAME (
+    echo Game folder not found - run setup.bat first.
+    pause
+    exit /b 1
+)
 set "LOC=%GAME%\Package\HD\oversea\locale"
 
 echo [0/4] Checking for a game update...
@@ -18,7 +24,8 @@ if errorlevel 1 (
 )
 
 echo.
-echo [1/4] Importing finished chunk translations (work\queue\NNNN.out.tsv)...
+echo [1/4] Importing translations changed in git (pull / merged PR), then finished chunks...
+python -I tools\export_translations.py sync || goto :err
 python -I tools\normalize_queue.py || goto :err
 python -I tools\translate.py import-queue || goto :err
 

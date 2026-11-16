@@ -3,7 +3,10 @@ import hashlib
 import sys
 from pathlib import Path
 
-GAME = Path(r"D:\steam\steamapps\common\Where Winds Meet")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import config  # noqa: E402
+
+GAME = config.game_dir()
 ROOT = Path(__file__).resolve().parent.parent
 PKG = GAME / "Package/HD/oversea/locale"
 PAIRS = [  # game file, our build, original backup

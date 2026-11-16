@@ -4,7 +4,13 @@ setlocal
 REM Switch the Thai text of Where Winds Meet between the original and our translation.
 REM Close the game before switching (the game reads the file when it starts).
 
-set "GAME=D:\steam\steamapps\common\Where Winds Meet"
+set "GAME="
+for /f "delims=" %%G in ('python -I "%~dp0tools\config.py" game') do set "GAME=%%G"
+if not defined GAME (
+    echo Game folder not found - run setup.bat first.
+    pause
+    exit /b 1
+)
 set "TARGET=%GAME%\Package\HD\oversea\locale\translate_words_map_th"
 set "ORIG=%~dp0backup\original\Package\translate_words_map_th"
 set "MOD=%~dp0work\build\translate_words_map_th"

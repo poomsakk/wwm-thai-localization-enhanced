@@ -1,7 +1,13 @@
 @echo off
 chcp 65001 >nul
 REM Restore the game's original Thai locale files from backup\original
-set "GAME=D:\steam\steamapps\common\Where Winds Meet"
+set "GAME="
+for /f "delims=" %%G in ('python -I "%~dp0tools\config.py" game') do set "GAME=%%G"
+if not defined GAME (
+    echo Game folder not found - run setup.bat first.
+    pause
+    exit /b 1
+)
 set "BK=%~dp0backup\original"
 
 copy /Y "%BK%\Package\translate_words_map_th" "%GAME%\Package\HD\oversea\locale\translate_words_map_th" || goto :err

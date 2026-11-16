@@ -9,7 +9,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 Q = ROOT / "work" / "queue"
-GAME_FILE = Path(r"D:\steam\steamapps\common\Where Winds Meet\Package\HD\oversea\locale\translate_words_map_th")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import config  # noqa: E402
+
+_GAME = config.game_dir(required=False)
+GAME_FILE = (_GAME / config.LOCALE_REL / "translate_words_map_th") if _GAME else Path("<game not found>")
 
 
 def kind(cat, zh):

@@ -33,12 +33,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import wwmloc  # noqa: E402
+import config  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "work" / "wwm.db"
 BACKUP = ROOT / "backup" / "original"
 BUILD = ROOT / "work" / "build"
-GAME = Path(r"D:\steam\steamapps\common\Where Winds Meet")
+GAME = config.game_dir()
 PKG = GAME / "Package/HD/oversea/locale"
 PATCH = GAME / "LocalData/Patch/HD/oversea/locale"
 VERSION_FILE = GAME / "Engine/Binaries/Win64r/Built.version"
