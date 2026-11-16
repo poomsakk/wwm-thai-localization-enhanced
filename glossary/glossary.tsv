@@ -35,10 +35,10 @@ zh	th	type	en	status	note
 武林	ยุทธภพ	lore	Wulin	draft	
 门派	สำนัก	lore	Sect	approved	
 流派	สายวิชา	system	Path	draft	ไทยเดิม "สำนัก" ชนกับ 门派
-武学	วิทยายุทธ์	system	Martial Arts	draft	ไทยเดิม "ศิลปะการต่อสู้"
+武学	วิทยายุทธ์	system	Martial Arts	approved	ผู้ใช้กำหนด (ไทยเดิม "ศิลปะการต่อสู้")
 武学技	สกิลวิทยายุทธ์	system	Martial Art Skill	approved	ทับศัพท์
-心法	เคล็ดวิชา	system	Inner Way	draft	ไทยเดิม "จิตวิชา"
-奇术	วิชาลับ	system	Mystic Skills	approved	ผู้ใช้กำหนด
+心法	จิตวิชา	system	Inner Way	approved	ผู้ใช้กำหนด 2026-11-17 (ตรงกับไทยเดิม; เดิมเราใช้ "เคล็ดวิชา")
+奇术	ศาสตร์ลึกลับ	system	Mystic Skills	approved	ผู้ใช้กำหนด 2026-11-17 (ตรงกับไทยเดิม; เดิมเราใช้ "วิชาลับ")
 真气	ลมปราณ	system	Qi	approved	
 真气伤害	ดาเมจลมปราณ	combat	Qi Damage	approved	ทับศัพท์
 气血	HP	combat	HP	approved	ค่าสถานะ; เนื้อเรื่องเชิงการแพทย์ใช้ ลมปราณและโลหิต
