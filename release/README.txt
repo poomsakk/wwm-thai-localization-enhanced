@@ -19,11 +19,18 @@
 
 อัปเดตอัตโนมัติ (แนะนำ)
 ----------------------
-ตอนติดตั้งเสร็จ install.bat จะก๊อปบรรทัดคำสั่งไว้ให้แล้ว:
-  Steam > คลิกขวาที่เกม > Properties > General > Launch Options > กด Ctrl+V
+รองรับเกมทั้ง 3 แบบ: Steam, Epic Games และตัวติดตั้งของเกมเอง (launcher.exe)
 
-จากนั้นกด Play ใน Steam ตามปกติ ทุกครั้งที่เปิดเกม ม็อดจะ
-  - ติดตั้งคำแปลกลับให้เอง ถ้า Steam เขียนทับไฟล์
+Steam: ตอนติดตั้งเสร็จ install.bat จะก๊อปบรรทัดคำสั่งไว้ให้แล้ว
+  Steam > คลิกขวาที่เกม > Properties > General > Launch Options > กด Ctrl+V
+  จากนั้นกด Play ใน Steam ตามปกติ
+
+Epic Games / ตัวติดตั้งของเกม: install.bat จะสร้าง shortcut
+  "Where Winds Meet (Thai)" บน Desktop ให้ เปิดเกมจาก shortcut นี้แทน
+  (มันจะเช็กคำแปลก่อน แล้วเปิดเกมผ่าน Epic / launcher ของเกมให้เอง)
+
+ทุกครั้งที่เปิดเกมด้วยวิธีข้างบน ม็อดจะ
+  - ติดตั้งคำแปลกลับให้เอง ถ้าตัวอัปเดตเกมเขียนทับไฟล์
   - โหลดม็อดเวอร์ชันใหม่ให้เอง ถ้ามี (เช็กทุกครั้งที่กด Play)
 ถ้าเกมอัปเดตแล้วม็อดเวอร์ชันที่ตรงกันยังไม่ออก เกมจะใช้ภาษาไทยเดิมไปก่อน
 (ไม่มีทางทำให้ข้อความในเกมเพี้ยน เพราะม็อดจะเช็กเวอร์ชันเกมก่อนทุกครั้ง)
@@ -32,15 +39,16 @@
 ถอนการติดตั้ง
 ------------
 1. ดับเบิลคลิก uninstall.bat (อยู่ใน %LOCALAPPDATA%\WWM-Thai)
-2. ลบบรรทัด play.bat ออกจาก Steam > Properties > Launch Options
-หรือใช้ Steam > Properties > Installed Files > Verify integrity of game files ก็คืนไฟล์ได้เหมือนกัน
+2. (Steam) ลบบรรทัด play.bat ออกจาก Steam > Properties > Launch Options
+   (Epic / ตัวติดตั้งของเกม) shortcut บน Desktop ถูกลบให้เอง
+หรือใช้ปุ่ม Verify / ซ่อมไฟล์เกม ของ Steam / Epic / launcher ก็คืนไฟล์ได้เหมือนกัน
 
 
 ม็อดนี้ทำอะไรกับเครื่องคุณบ้าง
 -----------------------------
-- แก้ไฟล์ในเกมแค่ 2 ไฟล์:
-    Package\HD\oversea\locale\translate_words_map_th
-    Package\HD\oversea\locale\translate_words_map_th_diff
+- แก้ไฟล์ในเกมแค่ 2 ไฟล์ (translate_words_map_th และ translate_words_map_th_diff) ใน
+    Package\HD\oversea\locale             (Steam / Epic)
+    LocalData\Patch\HD\oversea\locale     (ตัวติดตั้งของเกม)
   และสำรองต้นฉบับไว้ที่ %LOCALAPPDATA%\WWM-Thai\backup ก่อนเสมอ
 - ไม่ต้องใช้สิทธิ์ admin ไม่ลงโปรแกรมใด ๆ
 - ต่ออินเทอร์เน็ตเฉพาะตอนเช็กอัปเดต ไปที่ GitHub ของโปรเจกต์นี้เท่านั้น
