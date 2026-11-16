@@ -6,8 +6,18 @@
 
 ## สำหรับผู้เล่น
 
-โหลด zip ล่าสุดจากหน้า **Releases** แตกไฟล์ แล้วดับเบิลคลิก `install.bat`
-วิธีใช้ทั้งหมดอยู่ใน [release/README.txt](release/README.txt)
+รองรับ **Steam**, **Epic Games** และ**ตัวติดตั้งของเกมเอง** (launcher.exe)
+
+1. โหลด `WWM-Thai-<เวอร์ชัน>.zip` ล่าสุดจากหน้า [Releases](https://github.com/poomsakk/wwm-thai-localization-enhanced/releases/latest)
+2. แตกไฟล์ zip → ปิดเกม → ดับเบิลคลิก `install.bat`
+3. ทำต่อตามแพลตฟอร์ม
+   - **Steam:** วางบรรทัดที่ install.bat ก๊อปไว้ให้ ลงใน Steam > Properties > Launch Options แล้วกด Play ตามปกติ
+   - **Epic / ตัวติดตั้งของเกม:** เปิดเกมจาก shortcut **"Where Winds Meet (Thai)"** บน Desktop
+4. เข้าเกมแล้วตั้งภาษาเป็นไทย
+
+ม็อดจะเช็กอัปเดตและซ่อมคำแปลให้เองทุกครั้งที่เปิดเกมด้วยวิธีข้างบน
+ไม่อยากรันสคริปต์ก็**ติดตั้งด้วยมือ**ได้ (ก๊อปไฟล์ 2 ไฟล์จากโฟลเดอร์ `data`)
+วิธีละเอียดของทุกแบบ รวมถึงการถอนการติดตั้ง อยู่ใน [release/README.txt](release/README.txt)
 
 ## สำหรับนักพัฒนา
 
