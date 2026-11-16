@@ -130,7 +130,8 @@ def main():
         print("  already there - skipped")
 
     print("[4/4] Translations from git -> database")
-    run("tools/export_translations.py", "import" if fresh else "sync")
+    first = fresh or not (ROOT / "work" / "translations_base").exists()
+    run("tools/export_translations.py", "import" if first else "sync")
 
     print("\nReady. Next: build_mod.bat builds the mod and installs it into the game.")
 

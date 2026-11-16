@@ -227,8 +227,12 @@ translate.py chunks --new → แปลเฉพาะของใหม่ แ�
 ## 8. แผนที่ไฟล์
 
 ```
-build_mod.bat            สร้างและติดตั้งมอด
+setup.bat                ตั้งค่าครั้งแรกหลัง git clone / ล้างเครื่อง (tools/setup_project.py)
+build_mod.bat            sync คำแปลจาก git → สร้างและติดตั้งมอด → export translations/
 update_game.bat          จัดการตอนเกมอัปเดต
+local.cfg                โฟลเดอร์เกมของเครื่องนี้ (สร้างเอง ไม่อยู่ใน git)
+translations/            คำแปลทั้งหมด zh→th (ตัวหลักใน git; DB เป็นแค่ cache ในเครื่อง)
+release/                 ชุดติดตั้งสำหรับผู้เล่น (install/play/uninstall.bat + wwm-thai.ps1)
 switch_thai.bat          สลับมอด/ไทยเดิม
 restore_original.bat     คืนไฟล์ต้นฉบับ
 backup/original/         ไฟล์ภาษาต้นฉบับของเวอร์ชันปัจจุบัน (ใช้เป็นฐานตอน build)
@@ -251,6 +255,12 @@ tools/
   show_chunk.py      แสดงก้อนงานให้อ่านง่าย
   compare_versions.py เทียบคำแปลสองชุด (HTML)
   check_installed.py ตรวจไฟล์ที่ติดตั้งในเกม
+  config.py          หาโฟลเดอร์เกม (WWM_GAME / local.cfg / Steam)
+  setup_project.py   ตั้งค่าเครื่องใหม่ (เรียกจาก setup.bat)
+  export_translations.py  DB ⇄ translations/ (export / sync / import)
+  name_pass.py       ไล่แก้ชื่อเฉพาะตาม series_names.tsv ทั้ง DB และก้อนงาน
+  next_chunk.py      แจกก้อนงานให้ subagent หลายตัว (เลขน้อยก่อน)
+  make_release.py    แพ็ก zip + manifest สำหรับ GitHub Release
 work/
   wwm.db             ฐานข้อมูลหลัก (+ ไฟล์ .bak_* สำรอง)
   queue/             NNNN.tsv / .out.tsv / .imported / .inchat

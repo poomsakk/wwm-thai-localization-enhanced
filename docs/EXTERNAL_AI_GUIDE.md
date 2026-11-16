@@ -93,7 +93,7 @@ python -I tools\translate.py check 0117 0128
 ## ทุกครั้งที่จะแปล
 1. เปิด **Command Prompt** แล้วเข้าโฟลเดอร์โปรเจกต์
    ```
-   cd /d D:\wwm-thai-localization-enhance
+   cd /d <project folder>
    ```
 2. ใส่ key (มีผลเฉพาะหน้าต่างนี้ ปิดหน้าต่างแล้ว key จะหายไป):
    ```

@@ -21,16 +21,32 @@
 | `docs/` | คู่มือภาษา/การแปล/การ build |
 | `release/` | ชุดติดตั้งสำหรับผู้เล่น (`.bat` + PowerShell) |
 
+### เริ่มทำงานบนเครื่องใหม่ (clone ครั้งแรก / ล้างเครื่อง)
+
+ต้องมี: ตัวเกม (ภาษาไทยต้นฉบับ **ไม่ได้ลงม็อดอยู่**: ถ้าลงอยู่ ให้ Steam > Verify integrity ก่อน)
+และ Python 3.10+ (ติ๊ก "Add python.exe to PATH" ตอนติดตั้ง)
+
+```
+git clone https://github.com/poomsakk/wwm-thai-localization-enhanced.git
+```
+
+แล้วดับเบิลคลิก **`setup.bat`** ครั้งเดียว มันจะ: ลงไลบรารี Python → หาโฟลเดอร์เกมจาก Steam (บันทึกใน `local.cfg`)
+→ สำรองไฟล์ไทยต้นฉบับไว้ใน `backup\original` → สร้าง `work\wwm.db` → โหลดคำแปลทั้งหมดจาก `translations/`
 ไฟล์เกมต้นฉบับ (`backup/`) และฐานข้อมูล (`work/`) ไม่อยู่ใน repo เพราะใหญ่และเป็นข้อมูลของเกม
-สร้างขึ้นใหม่ได้จากเกมที่ติดตั้งในเครื่อง (เกมต้องเป็นไฟล์ไทยต้นฉบับ ไม่ได้ลงม็อดอยู่):
-ก๊อป `translate_words_map_*` จาก `<เกม>\Package\HD\oversea\locale` ไปไว้ใน `backup\original\Package\`
-(และจาก `LocalData\Patch\HD\oversea\locale` ไปไว้ใน `backup\original\LocalData\`) แล้ว
 
-```
-python -I tools/build_db.py
-python -I tools/export_translations.py import
-build_mod.bat
-```
+### งานประจำ
 
-ออก release: `build_mod.bat` แล้ว `python -I tools/make_release.py`
-จากนั้นอัปโหลดทั้ง `dist/<version>/*.zip` และ `dist/<version>/manifest.txt` ขึ้น GitHub Release
+| งาน | วิธี |
+|---|---|
+| build + ติดตั้งม็อดลงเกม | `build_mod.bat` (ดึงคำแปลที่เปลี่ยนใน git เข้า DB ก่อน แล้ว export `translations/` ให้เอง) |
+| เกมอัปเดต | `update_game.bat` → แปลข้อความใหม่ (`translate.py chunks --new`) → `build_mod.bat` |
+| เพิ่ม/แก้ชื่อเฉพาะ | แก้ `glossary/series_names.tsv` → `python -I tools/name_pass.py --apply` → `build_mod.bat` |
+| แจกงานให้ subagent หลายตัว | `python -I tools/next_chunk.py [ก้อนที่เสร็จ]` (ดู docs/AGENT_CHUNK_TASK.md) |
+| ออก release | `build_mod.bat` → `python -I tools/make_release.py` → อัปโหลด `dist/<version>/*.zip` และ `manifest.txt` ขึ้น GitHub Release |
+| เก็บงานขึ้น GitHub | `git add -A` → `git commit -m "..."` → `git push` |
+
+### ส่งคำแปลมาช่วย (contributor)
+
+แก้บรรทัดใน `translations/<ประเภท>.tsv` (คอลัมน์ `th`; ห้ามแตะคอลัมน์ `zh`) แล้วเปิด Pull Request
+ต้องคงรหัสพิเศษ (`#Y…#E`, `{0}`, `%s`, `\n`, `<LINK…>`) ให้เหมือนต้นฉบับ และใช้ชื่อตาม `glossary/series_names.tsv`
+กติกาภาษาอยู่ใน [docs/STYLE_GUIDE.md](docs/STYLE_GUIDE.md)

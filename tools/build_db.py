@@ -43,16 +43,17 @@ BACKUP = ROOT / "backup" / "original"  # pristine copies of files we may have mo
 
 
 def effective(lang):
-    main_path = BACKUP / "Package" / f"translate_words_map_{lang}"
-    if not main_path.exists():
-        main_path = PKG / f"translate_words_map_{lang}"
-    main = load_map(main_path)
-    diff_path = BACKUP / "LocalData" / f"translate_words_map_{lang}_diff"
-    if not diff_path.exists():
-        diff_path = PATCH / f"translate_words_map_{lang}_diff"
-    if not diff_path.exists():
-        diff_path = PKG / f"translate_words_map_{lang}_diff"
-    diff = {k: v for k, v in load_map(diff_path).items() if v != TOMB}
+    """Layers, lowest first: Package main <- Package _diff <- LocalData\\Patch _diff (later wins,
+    0xFF = no override) - the same rule as update_game.py. Each file comes from backup\\original
+    when it is there (the game's Thai files may be our mod), else from the game."""
+    def path(sub, game_dir, name):
+        b = BACKUP / sub / name
+        return b if b.exists() else game_dir / name
+    main = load_map(path("Package", PKG, f"translate_words_map_{lang}"))
+    diff = {}
+    for sub, game_dir in (("Package", PKG), ("LocalData", PATCH)):
+        diff.update({k: v for k, v in load_map(path(sub, game_dir, f"translate_words_map_{lang}_diff")).items()
+                     if v != TOMB})
     return main, diff
 
 

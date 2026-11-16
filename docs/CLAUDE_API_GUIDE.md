@@ -17,7 +17,7 @@
 
 ## ใส่ key ทุกครั้งที่เปิด Command Prompt ใหม่
 ```
-cd /d D:\wwm-thai-localization-enhance
+cd /d <project folder>
 set ANTHROPIC_API_KEY=sk-ant-วาง-key-ตรงนี้
 ```
 (ค่านี้มีผลเฉพาะหน้าต่างนั้น ปิดแล้วก็หายไป)

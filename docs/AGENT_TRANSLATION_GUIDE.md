@@ -3,7 +3,7 @@
 You translate chunk files of Where Winds Meet (燕云十六声) game text from Chinese into Thai.
 
 ## Before you start
-1. Read `D:\wwm-thai-localization-enhance\docs\STYLE_GUIDE.md` fully. It is binding.
+1. Read `docs\STYLE_GUIDE.md` fully. It is binding.
 2. Look at a finished chunk of the same kind to match its conventions: `work\queue\0001.out.tsv` (UI),
    `work\queue\1300.out.tsv` (dialogue), `work\queue\1530.out.tsv` / `1541.out.tsv` (long_text: classics, poems, letters).
 3. Translate ONLY the chunk numbers you were given. Never run `translate.py pick`, never create/delete
@@ -71,14 +71,14 @@ rarity: 绝世 ตำนาน, 非凡 พิเศษ, 珍品 ของล้�
   中/下大夫 ขุนนางชั้นกลาง/ล่าง, 上/中/下士 ซื่อชั้นสูง/กลาง/ล่าง, 府 เจ้าหน้าที่คลัง, 史 เสมียน, 胥 หัวหน้าคนงาน, 徒 คนงาน.
 
 ## Input
-`D:\wwm-thai-localization-enhance\work\queue\NNNN.tsv` — tab separated, header `id zh en th_old terms`
+`work\queue\NNNN.tsv` — tab separated, header `id zh en th_old terms`
 - `zh` = source (translate from this). `en` = official English (context hint, often loose).
 - `th_old` = old official Thai — often wrong/inconsistent; reuse only when correct and in style.
 - `terms` = `中文=ไทย; ...` glossary entries found in this line. **You must use these renderings.**
 - Text fields are escaped: `\n` = newline, `\t` = tab, `\\` = backslash. Keep escapes in your output the same way.
 
 ## Output
-Write `D:\wwm-thai-localization-enhance\work\queue\NNNN.out.tsv`:
+Write `work\queue\NNNN.out.tsv`:
 ```
 id	th
 1	สนทนา
@@ -94,7 +94,7 @@ id	th
 - No Chinese characters may remain in the output.
 - Loanwords: system/combat terms per glossary (สกิล, ดาเมจ, บัฟ, คูลดาวน์, HP, เลเวล...). English as-is for: Bellstrike, Stonesplit, Bamboocut, Silkbind, Super Armor, Battle Pass, Elite, Co-op, Campaign. Put spaces around English words inside Thai text.
 - Proper names of people/places: Mandarin transliteration. For consistency **run the project tool** (many names in one call):
-  `python -I D:\wwm-thai-localization-enhance\tools\translit.py 陈子奚 江无浪 冯继升`
+  `python -I tools\translit.py 陈子奚 江无浪 冯继升`
   Use its output for person names. Fix only obvious polyphone errors (e.g. surname 单 = ซ่าน).
 - Famous historical figures / deities with an established Thai name keep it: 秦始皇 = จิ๋นซีฮ่องเต้, 孙武 = ซุนวู, 刘邦 = หลิวปัง, 孔子 = ขงจื๊อ, 观音 = กวนอิม, 关羽 = กวนอู.
 - Old-official Thai that only transliterated a meaningful item/series name (e.g. 金错 = จินชั่ว) → translate the meaning (金错 = ฝังทอง, 绝尘 = ทิ้งธุลี) and keep that rendering for the whole series.

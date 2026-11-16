@@ -1,6 +1,11 @@
 # Subagent task: translate ONE chunk (Chinese → Thai)
 
-Project: D:\wwm-thai-localization-enhance. Your chunk number NNNN is given in your prompt.
+Project: the root of this repo. Your chunk number NNNN is given in your prompt.
+
+> Orchestrator (not the agent): claim chunks with `python -I tools/next_chunk.py [--range FROM TO]`,
+> start each agent with "Follow docs/AGENT_CHUNK_TASK.md; your chunk is NNNN; scratchpad: <dir>".
+> When an agent finishes, `python -I tools/next_chunk.py NNNN` checks it, releases its claim and
+> claims the next chunk. Keep ~10 agents running. Afterwards: `tools/name_pass.py`, `build_mod.bat`.
 
 1. Read docs/STYLE_GUIDE.md and docs/AGENT_TRANSLATION_GUIDE.md fully first and follow them exactly
    (workflow, name priority, special tokens, classics/poem conventions, fixed long_text names).

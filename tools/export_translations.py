@@ -16,13 +16,14 @@ other rows is kept. If a row changed on both sides, the git version wins and it 
 build_mod.bat runs `sync` before importing chunks and `export` after.
 """
 import argparse
+import datetime
 import shutil
 import sqlite3
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from translate import tsv_esc, tsv_unesc  # noqa: E402
+from translate import db as open_db, tsv_esc, tsv_unesc  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "work" / "wwm.db"
@@ -57,6 +58,18 @@ def export(con):
     by_cat = {}
     for cat, zh, th in rows:
         by_cat.setdefault(cat or "other", []).append((zh, th))
+    # keep rows whose Chinese text this game version's DB does not have at all (texts the game
+    # dropped, or a DB built from another version) - they may come back in a later update
+    in_db = {z for (z,) in con.execute("SELECT zh FROM sources")}
+    kept = 0
+    for old in OUT.glob("*.tsv"):
+        for line in old.read_text(encoding="utf-8").splitlines()[1:]:
+            z, t = line.split("\t", 1)
+            if tsv_unesc(z) not in in_db:
+                by_cat.setdefault(old.stem, []).append((tsv_unesc(z), tsv_unesc(t)))
+                kept += 1
+    if kept:
+        print(f"kept {kept:,} rows for texts not in this game version")
     for old in OUT.glob("*.tsv"):
         if old.stem not in by_cat:
             old.unlink()
@@ -74,8 +87,9 @@ def export(con):
 def apply_rows(con, rows):
     """rows: {zh: th}. Returns (applied, not_in_db)."""
     n = miss = 0
+    now = datetime.datetime.now().isoformat(timespec="seconds")
     for zh, th in rows.items():
-        cur = con.execute("UPDATE sources SET th_new=?, status='done', model='git' WHERE zh=?", (th, zh))
+        cur = con.execute("UPDATE sources SET th_new=?, status='done', model='git', updated_at=? WHERE zh=?", (th, now, zh))
         if cur.rowcount:
             n += 1
         else:
@@ -126,7 +140,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["export", "sync", "import"])
     a = ap.parse_args()
-    con = sqlite3.connect(DB)
+    con = open_db()  # adds the model/updated_at columns on a fresh DB
     {"export": export, "sync": sync, "import": import_}[a.cmd](con)
 
 

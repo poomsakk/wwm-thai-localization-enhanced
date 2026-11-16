@@ -37,6 +37,7 @@ python -I tools\export_translations.py export || goto :err
 
 echo.
 echo [3/4] Building the game files from the original backup...
+if not exist work\build mkdir work\build
 REM Since the 2026-11 game update the Thai text is split over the main file and its _diff.
 for %%F in (translate_words_map_th translate_words_map_th_diff) do (
     if exist "backup\original\Package\%%F" (
