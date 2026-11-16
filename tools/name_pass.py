@@ -19,6 +19,7 @@ A second run should report 0 changes.
 import argparse
 import csv
 import datetime
+import re
 import sqlite3
 import sys
 from pathlib import Path
@@ -45,6 +46,9 @@ def load_rules(start_zh=None):
     return rules
 
 
+THAI = "฀-๿"
+
+
 def fix(rules, zh, th):
     n = 0
     for z, good, bads in rules:
@@ -53,6 +57,10 @@ def fix(rules, zh, th):
                 if b in th:
                     n += th.count(b)
                     th = th.replace(b, good)
+                    if re.match(r"[A-Za-z]", good):  # English term: keep a space from Thai letters
+                        th = re.sub(f"(?<=[{THAI}]){re.escape(good)}", " " + good, th)
+                    if re.search(r"[A-Za-z]$", good):
+                        th = re.sub(f"{re.escape(good)}(?=[{THAI}])", good + " ", th)
     return th, n
 
 
