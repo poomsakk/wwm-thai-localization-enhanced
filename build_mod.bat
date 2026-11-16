@@ -3,6 +3,8 @@ chcp 65001 >nul
 setlocal
 REM Build the Thai mod from all translated chunks and install it into the game.
 REM No AI is used here - this only runs local Python tools.
+REM   build_mod.bat          build and copy into the game
+REM   build_mod.bat nocopy   build only (e.g. before make_release while the player kit is installed)
 
 cd /d "%~dp0"
 set "GAME="
@@ -47,6 +49,10 @@ for %%F in (translate_words_map_th translate_words_map_th_diff) do (
 )
 
 echo.
+if /i "%~1"=="nocopy" (
+    echo [4/4] Skipped installing into the game ^(nocopy^) - files are in workuild
+    goto :status
+)
 echo [4/4] Installing into the game...
 tasklist /FI "IMAGENAME eq wwm.exe" 2>nul | find /I "wwm.exe" >nul && (
     echo The game is running - close it, then run switch_thai.bat and choose [1] MOD.
