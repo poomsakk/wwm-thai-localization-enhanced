@@ -35,7 +35,7 @@ RULES
 - UI, buttons and labels: short modern Thai, no trailing period.
 - Character speech: pronouns ข้า / เจ้า / ท่าน with modern sentence structure. Never ฉัน คุณ เธอ ครับ ค่ะ.
 - Game terms use loanwords: สกิล ดาเมจ บัฟ ดีบัฟ คูลดาวน์ คริติคอล ชิลด์ สตามินา HP EXP เลเวล บอส ดันเจี้ยน.
-- Keep these in English: Bellstrike, Stonesplit, Bamboocut, Silkbind, Super Armor, Battle Pass, Elite, Co-op, Campaign. Put spaces around English words.
+- Keep these in English: Bellstrike, Stonesplit, Bamboocut, Silkbind, Super Armor, Battle Pass, Elite, Co-op. 镇守 (game mode) = ด่านพิทักษ์. Put spaces around English words.
 - Person names: Mandarin transliteration (e.g. 陈 เฉิน, 刘 หลิว, 黄 หวง, 王 หวัง, 张 จาง).
 - Place / sect names: transliterated name + Thai type word: 门 สำนัก, 楼/馆/阁 หอ, 帮 พรรค, 山 เขา, 谷 หุบเขา, 河 แม่น้ำ, 湖 ทะเลสาบ, 城 เมือง.
 - Quest, skill, item and set titles with a clear meaning: translate the meaning, short and evocative.

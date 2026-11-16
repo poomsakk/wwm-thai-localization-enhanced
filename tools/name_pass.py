@@ -56,6 +56,9 @@ def fix(rules, zh, th):
             for b in bads:
                 if b in th:
                     n += th.count(b)
+                    if re.search(r"[A-Za-z]", b) and not re.search(r"[A-Za-z]", good):
+                        # English variant -> Thai term: drop the spaces that only separated English
+                        th = re.sub(f"(?:(?<=[{THAI}]) )?{re.escape(b)}(?: (?=[{THAI}]))?", good, th)
                     th = th.replace(b, good)
                     if re.match(r"[A-Za-z]", good):  # English term: keep a space from Thai letters
                         th = re.sub(f"(?<=[{THAI}]){re.escape(good)}", " " + good, th)

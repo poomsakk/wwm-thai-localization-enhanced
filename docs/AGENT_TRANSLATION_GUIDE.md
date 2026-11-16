@@ -30,11 +30,11 @@ You translate chunk files of Where Winds Meet (燕云十六声) game text from C
 The `terms` column is generated automatically and is meant for UI/system text. In narrative use natural Thai:
 - 经验 = ประสบการณ์ (not EXP) · 沉默 = เงียบ / นิ่งเงียบ (not ไซเลนซ์) · 无敌 = ไร้เทียมทาน (not อมตะ)
 - 多人 = คนมากมาย (หลายผู้เล่น only for multiplayer mode) · 击飞 in story = กระเด็น
-- 镇守 as a verb (guard a city) = รักษาการณ์ / ปกป้อง; 镇守 as the game mode = Campaign (user decision)
+- 镇守 as a verb (guard a city) = รักษาการณ์ / ปกป้อง; 镇守 as the game mode = ด่านพิทักษ์ (user decision; boss = บอสด่านพิทักษ์)
 - 继续/离开/开始/选择/询问/控制/完成 etc. → whatever reads naturally; the literal UI word is not required.
 
 ### Names fixed in the long_text work (reuse exactly)
-User decisions: 不见山 = เขาปู้เจี้ยน (do not change), 镇守 (mode) = Campaign.
+User decisions: 不见山 = เขาปู้เจี้ยน (do not change), 镇守 (mode) = ด่านพิทักษ์.
 Sects/places: 狂澜 ขวางหลาน, 醉花阴 จุ้ยฮวาอิน, 绣金楼 หอซิ่วจิน, 九流门 สำนักจิ่วหลิว, 墨山道 ทางเขาม่อ, 墨门 สำนักม่อ,
 文津馆 หอเหวินจิน, 梨园 คณะหลีหยวน, 青溪 ชิงซี, 天泉 เทียนเฉวียน, 孤云 กูหยุน, 玄元教 ลัทธิเสวียนหยวน, 无忧帮 พรรคอู๋โยว,
 鬼市(子) ตลาดผี, 不羡仙 ปู้เซี่ยนเซียน, 神仙渡 ท่าเรือเทพเซียน, 樊楼 หอฝาน, 未央城 เมืองเว่ยยาง, 飞天城 เมืองเฟยเทียน,
@@ -92,7 +92,7 @@ id	th
 - Dialogue: ข้า / เจ้า / ท่าน, modern sentence structure; never ฉัน/คุณ/เธอ/ครับ/ค่ะ in character speech.
 - Keep technical tokens exactly: `#Y…#E` / `#H…#E` color codes (same count), `{}` `{0}` `{name}`, `%s` `%d`, `\n` count, and `|` (male|female — translate both sides).
 - No Chinese characters may remain in the output.
-- Loanwords: system/combat terms per glossary (สกิล, ดาเมจ, บัฟ, คูลดาวน์, HP, เลเวล...). English as-is for: Bellstrike, Stonesplit, Bamboocut, Silkbind, Super Armor, Battle Pass, Elite, Co-op, Campaign. Put spaces around English words inside Thai text.
+- Loanwords: system/combat terms per glossary (สกิล, ดาเมจ, บัฟ, คูลดาวน์, HP, เลเวล...). English as-is for: Bellstrike, Stonesplit, Bamboocut, Silkbind, Super Armor, Battle Pass, Elite, Co-op. Put spaces around English words inside Thai text.
 - Proper names of people/places: Mandarin transliteration. For consistency **run the project tool** (many names in one call):
   `python -I tools\translit.py 陈子奚 江无浪 冯继升`
   Use its output for person names. Fix only obvious polyphone errors (e.g. surname 单 = ซ่าน).
