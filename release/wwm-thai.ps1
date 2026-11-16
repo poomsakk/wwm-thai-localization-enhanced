@@ -26,7 +26,6 @@ try { [Console]::OutputEncoding = [Text.Encoding]::UTF8 } catch {}
 $Repo            = ''   # GitHub "owner/repo" สำหรับอัปเดตอัตโนมัติ (ว่าง = ไม่เช็กออนไลน์) — make_release ใส่ให้
 $Files           = @('translate_words_map_th', 'translate_words_map_th_diff')
 $LocaleRel       = 'Package\HD\oversea\locale'
-$CheckEveryHours = 6    # เช็กม็อดเวอร์ชันใหม่อย่างมากทุกกี่ชั่วโมง
 
 $ModHome   = if ($env:WWMTHAI_HOME) { $env:WWMTHAI_HOME } else { Join-Path $env:LOCALAPPDATA 'WWM-Thai' }
 $DataDir   = Join-Path $ModHome 'data'
@@ -174,19 +173,27 @@ function Use-Kit([string]$game, [hashtable]$oldMan, [string]$newDataDir) {
 }
 
 # ---------------- อัปเดตออนไลน์ (GitHub Releases) ----------------
-function Get-Web([string]$url, [string]$outFile = '') {
-    $p = @{ Uri = $url; UseBasicParsing = $true; TimeoutSec = 15; Headers = @{ 'User-Agent' = 'wwm-thai-mod' } }
+function Get-Web([string]$url, [string]$outFile = '', [int]$timeout = 15) {
+    $p = @{ Uri = $url; UseBasicParsing = $true; TimeoutSec = $timeout; Headers = @{ 'User-Agent' = 'wwm-thai-mod' } }
     if ($outFile) { $p.OutFile = $outFile; $p.TimeoutSec = 900 }
     return Invoke-WebRequest @p
 }
-# หา release ที่สร้างจากต้นฉบับ $orig และเวอร์ชันใหม่กว่า $minVersion
+# เลขเวอร์ชันจากชื่อ tag เช่น v2026.11.17 -> 2026.11.17 (อ่านไม่ได้ = $null)
+function Tag-Version([string]$tag) {
+    try { return [version]($tag -replace '^[vV]', '') } catch { return $null }
+}
+# หา release ใหม่สุดที่สร้างจากต้นฉบับ $orig และเวอร์ชันใหม่กว่า $minVersion
+# ปกติใช้แค่ 1 request (รายการ release) — โหลด manifest เฉพาะ release ที่ tag ใหม่กว่าเท่านั้น
 function Find-Update([hashtable]$orig, [version]$minVersion) {
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
     $prefix = "https://github.com/$Repo/releases/download/"
-    $rels = (Get-Web "https://api.github.com/repos/$Repo/releases?per_page=20").Content | ConvertFrom-Json
-    $best = $null
+    $rels = @((Get-Web "https://api.github.com/repos/$Repo/releases?per_page=30" -timeout 6).Content | ConvertFrom-Json) |
+        ForEach-Object { $_ } |
+        Where-Object { -not $_.draft -and -not $_.prerelease } |
+        Sort-Object -Descending -Property @{ Expression = { $v = Tag-Version $_.tag_name; if ($v) { $v } else { [version]'0.0' } } }
     foreach ($r in $rels) {
-        if ($r.draft -or $r.prerelease) { continue }
+        $tv = Tag-Version $r.tag_name
+        if ($tv -and $tv -le $minVersion) { break }   # เรียงใหม่ไปเก่า: ที่เหลือเก่ากว่าทั้งหมด
         $ma = $r.assets | Where-Object { $_.name -eq 'manifest.txt' } | Select-Object -First 1
         if (-not $ma -or -not $ma.browser_download_url.StartsWith($prefix)) { continue }
         $tmp = [IO.Path]::GetTempFileName()
@@ -196,9 +203,9 @@ function Find-Update([hashtable]$orig, [version]$minVersion) {
         if ($v -le $minVersion) { continue }
         $za = $r.assets | Where-Object { $_.name -eq $m['zip_name'] } | Select-Object -First 1
         if (-not $za -or -not $za.browser_download_url.StartsWith($prefix)) { continue }
-        if (-not $best -or $v -gt $best.Version) { $best = @{ Version = $v; Man = $m; Url = $za.browser_download_url } }
+        return @{ Version = $v; Man = $m; Url = $za.browser_download_url }   # ใหม่สุดที่เข้ากับเกม
     }
-    return $best
+    return $null
 }
 # ดาวน์โหลด + ตรวจ แล้วคืนโฟลเดอร์ data ที่ตรวจแล้ว (อยู่ใน $tmp)
 function Get-Update($u, [string]$tmp) {
@@ -278,11 +285,7 @@ function Main-Play {
     $orig = Get-GameOrig $game $man
     $compatible = Test-Compatible $orig $man
 
-    $due = $true
-    if ($st['last_check']) {
-        try { $due = ((Get-Date) - [datetime]::Parse($st['last_check'], [Globalization.CultureInfo]::InvariantCulture)).TotalHours -ge $CheckEveryHours } catch {}
-    }
-    if ($Repo -and (-not $compatible -or $due)) {
+    if ($Repo) {   # เช็กทุกครั้งที่กด Play (ปกติ 1 request; ไม่มีเน็ตก็แค่ข้ามไป)
         $tmp = Join-Path $env:TEMP ('wwmthai_' + [guid]::NewGuid().ToString('N'))
         try {
             $min = if ($compatible -and $man['mod_version']) { [version]$man['mod_version'] } else { [version]'0.0' }
