@@ -32,5 +32,5 @@ python -I tools/export_translations.py import
 build_mod.bat
 ```
 
-ออก release: `build_mod.bat` แล้ว `python -I tools/make_release.py --repo <owner>/<repo>`
+ออก release: `build_mod.bat` แล้ว `python -I tools/make_release.py`
 จากนั้นอัปโหลดทั้ง `dist/<version>/*.zip` และ `dist/<version>/manifest.txt` ขึ้น GitHub Release

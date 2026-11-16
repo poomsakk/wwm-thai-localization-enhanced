@@ -62,7 +62,8 @@ def main():
     sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser()
     ap.add_argument("--version", help="mod version, 2-4 numbers (default: today, e.g. 2026.11.16)")
-    ap.add_argument("--repo", default="", help='GitHub "owner/name" for auto-update')
+    ap.add_argument("--repo", default="poomsakk/wwm-thai-localization-enhanced",
+                    help='GitHub "owner/name" for auto-update ("" = off)')
     a = ap.parse_args()
 
     today = datetime.date.today()
