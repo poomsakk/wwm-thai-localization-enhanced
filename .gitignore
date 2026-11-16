@@ -1,0 +1,17 @@
+# large / generated / game-derived data — never commit
+work/
+backup/
+dist/
+wwm_brasileiro/
+compare_old_vs_new.csv
+release/*.log
+
+# secrets — API keys go in environment variables, never in files
+.env
+*.key
+
+# python / OS
+__pycache__/
+*.pyc
+Thumbs.db
+desktop.ini

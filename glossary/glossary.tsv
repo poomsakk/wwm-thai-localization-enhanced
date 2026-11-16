@@ -1,0 +1,269 @@
+zh	th	type	en	status	note
+少侠	ท่านจอมยุทธ์	address	Young hero	approved	คำเรียกผู้เล่น (Style Guide)
+姑娘	แม่นาง	address	Young Lady	approved	
+大人	ใต้เท้า	address	Lord	approved	
+师父	ท่านอาจารย์	address	Master	approved	ในบทพูด; เมนูใช้ "อาจารย์"
+师兄	ศิษย์พี่	address	Senior Brother	approved	
+师姐	ศิษย์พี่หญิง	address	Senior Sister	approved	
+师弟	ศิษย์น้อง	address	Junior Brother	approved	
+师妹	ศิษย์น้องหญิง	address	Junior Sister	approved	
+在下	ผู้น้อย	pronoun		approved	หรือ "ข้า" ตามบริบท
+老夫	ข้าผู้เฒ่า	pronoun		approved	หรือ "ตาแก่อย่างข้า"
+小的	ข้าน้อย	pronoun		approved	
+小人	ข้าน้อย	pronoun		approved	
+贫僧	อาตมา	pronoun		approved	
+贫道	ข้าผู้ถือพรต	pronoun		approved	
+公子	คุณชาย	address	Young Master	draft	
+大哥	พี่ใหญ่	address	Elder Brother	draft	
+姐姐	พี่สาว	address	Elder Sister	draft	
+少东家	นายน้อย	address	Young Master	draft	ลูกเจ้าของกิจการ
+掌柜	เถ้าแก่	title	Shopkeeper	draft	
+将军	แม่ทัพ	title	General	draft	ยุคโบราณใช้แม่ทัพ ไม่ใช่นายพล
+官兵	นายทหาร	title	Imperial Soldier	approved	ผู้ใช้กำหนด
+士兵	ทหาร	title	Soldier	draft	
+百姓	ชาวบ้าน	title	Commoner	draft	
+村民	ชาวบ้าน	title	Villager	draft	
+宾客	แขก	title	Guest	draft	
+客人	แขก	title	Guest	draft	
+大侠	ยอดจอมยุทธ์	title	Great Hero	draft	
+侠客	จอมยุทธ์	title	Swordsman	draft	
+游侠	จอมยุทธ์พเนจร	title	Wanderer	draft	
+江湖人	คนในยุทธภพ	title	Swordsman	draft	
+天涯客	ผู้พเนจร	title	Wayfarer	draft	
+伙伴	สหาย	title	Companion	draft	
+江湖	ยุทธภพ	lore	Jianghu	approved	
+武林	ยุทธภพ	lore	Wulin	draft	
+门派	สำนัก	lore	Sect	approved	
+流派	สายวิชา	system	Path	draft	ไทยเดิม "สำนัก" ชนกับ 门派
+武学	วิทยายุทธ์	system	Martial Arts	draft	ไทยเดิม "ศิลปะการต่อสู้"
+武学技	สกิลวิทยายุทธ์	system	Martial Art Skill	approved	ทับศัพท์
+心法	เคล็ดวิชา	system	Inner Way	draft	ไทยเดิม "จิตวิชา"
+奇术	วิชาลับ	system	Mystic Skills	approved	ผู้ใช้กำหนด
+真气	ลมปราณ	system	Qi	approved	
+真气伤害	ดาเมจลมปราณ	combat	Qi Damage	approved	ทับศัพท์
+气血	HP	combat	HP	approved	ค่าสถานะ; เนื้อเรื่องเชิงการแพทย์ใช้ ลมปราณและโลหิต
+气血最大值	HP สูงสุด	combat	Max HP	approved	
+外功	กายภาพ	combat	Physical	draft	ใช้ในค่าสถานะ
+外功攻击	โจมตีกายภาพ	combat	Physical Attack	draft	
+最小外功攻击	โจมตีกายภาพต่ำสุด	combat	Min Physical Attack	draft	
+攻击	โจมตี	combat	Attack	approved	
+伤害	ดาเมจ	combat	Damage	approved	ทับศัพท์; ในบทพูด/เนื้อเรื่องใช้ บาดเจ็บ/ทำร้าย ตามบริบท
+造成伤害	สร้างดาเมจ	combat	Damage Dealt	approved	ทับศัพท์
+受到伤害	ได้รับดาเมจ	combat	Damage Taken	approved	ทับศัพท์
+增伤	เพิ่มดาเมจ	combat	DMG Boost	approved	ทับศัพท์
+伤害加成	โบนัสดาเมจ	combat	DMG Bonus	approved	ทับศัพท์
+伤害降低	ลดดาเมจ	combat	Damage Down	approved	ทับศัพท์
+会心率	อัตราคริติคอล	combat	Critical Rate	approved	
+防御	ป้องกัน	combat	Defense	approved	
+强韧	ความแกร่ง	combat	Tenacity	draft	
+耐力	สตามินา	combat	Endurance	approved	ทับศัพท์
+治疗	รักษา	combat	Heal	approved	
+护盾	ชิลด์	combat	Shield	approved	ทับศัพท์
+增益	บัฟ	combat	Buff	approved	ทับศัพท์
+蓄力	ชาร์จพลัง	combat	Charged Attack	approved	
+蓄力技	สกิลชาร์จ	combat	Charged Skill	approved	ทับศัพท์
+特殊技	สกิลพิเศษ	combat	Special Skill	approved	ทับศัพท์
+派生技	ท่าคอมโบ	combat	Varied Combo	draft	ทับศัพท์
+重击	โจมตีหนัก	combat	Heavy Attack	approved	
+轻击	โจมตีเบา	combat	Light Attack	approved	
+闪避	หลบหลีก	combat	Dodge	approved	
+完美闪避	หลบหลีกสมบูรณ์แบบ	combat	Perfect Dodge	approved	
+卸势	ปัดป้อง	combat	Deflection	draft	ไทยเดิม "ปลดปล่อยพลัง" ผิดความหมาย
+受击	โดนโจมตี	combat	Taking Hit	approved	
+处决	ปลิดชีพ	combat	Execution	approved	
+定身	ตรึงร่าง	combat	Immobilized	draft	
+首领	บอส	combat	Boss	approved	ทับศัพท์; ในบทพูดหมายถึงหัวหน้า ใช้ "หัวหน้า"
+鸣金	Bellstrike	path	Bellstrike	approved	อังกฤษตามชื่อทางการ (ผู้ใช้กำหนด)
+裂石	Stonesplit	path	Stonesplit	approved	อังกฤษตามชื่อทางการ (ผู้ใช้กำหนด)
+破竹	Bamboocut	path	Bamboocut	approved	อังกฤษตามชื่อทางการ (ผู้ใช้กำหนด)
+牵丝	Silkbind	path	Silkbind	approved	อังกฤษตามชื่อทางการ (ผู้ใช้กำหนด)
+陌刀	ดาบม่อ	item	Mo Blade	draft	ดาบยาวสมัยถัง
+胫甲	สนับแข้ง	item	Greaves	draft	ไทยเดิม "เกราะขา"
+武器	อาวุธ	item	Weapon	approved	
+装备	อุปกรณ์	item	Gear	approved	
+套装	เซ็ต	item	Set	approved	ทับศัพท์
+道具	ไอเทม	item	Item	approved	
+宝箱	หีบสมบัติ	item	Treasure Chest	approved	
+外观	รูปลักษณ์	item	Appearance	approved	
+属性	ค่าสถานะ	system	Attributes	draft	ไทยเดิม "คุณสมบัติ"
+等级	เลเวล	system	Level	draft	ทับศัพท์; ถ้าหมายถึงขั้น/เกรดของไอเทมหรือโหมด ใช้ ระดับ
+技能	สกิล	system	Skills	approved	ทับศัพท์
+天赋	พรสวรรค์	system	Talents	approved	
+突破	ทะลวงขั้น	system	Breakthrough	draft	
+强化	เสริมแกร่ง	system	Enhance	draft	
+升级	อัปเกรด	system	Upgrade	approved	ทับศัพท์
+侠境	แดนจอมยุทธ์	system	Hero's Realm	draft	
+侠名	ฉายาจอมยุทธ์	system	Hero Title	draft	
+话术	วาทศิลป์	system	Gift of Gab	draft	ไทยเดิม "ศิลปะการพูด"
+试剑	ประลองดาบ	mode	Sword Trial	draft	
+试炼	บททดสอบ	mode	Trial	draft	
+单人	เดี่ยว	mode	Solo	approved	
+单人模式	โหมดเดี่ยว	mode	Solo Mode	draft	
+多人	หลายผู้เล่น	mode	Multiplayer	draft	
+联机	Co-op	mode	Co-op	approved	ผู้ใช้กำหนด
+组队	ตั้งทีม	mode	Group Up	draft	
+队伍	ทีม	mode	Team	approved	
+玩法	รูปแบบการเล่น	mode	Mode	approved	
+百业	กิลด์	system	Guild	approved	ทับศัพท์
+家业	คฤหาสน์	system	Homestead / Legacy	approved	ครอบคลุมบ้านและบริวาร
+建造	ก่อสร้าง	system	Build	approved	
+建筑	สิ่งก่อสร้าง	system	Building	draft	ไทยเดิม "สถาปัตยกรรม"
+建造组件	ชิ้นส่วนก่อสร้าง	system	Building Component	draft	
+画舫	เรือสำราญ	system	Painted Boat	approved	
+止戈	อารีน่า	mode	Arena	approved	โหมด PvP จัดอันดับ
+止戈定音	อารีน่าชี้ชะตา	mode	Arena Attune	approved	
+止戈定音技	สกิลอารีน่า	mode	Truce Attunement Skill	approved	ไทยเดิมมี 13 แบบ
+镇守	Campaign	mode	Campaign	approved	ผู้ใช้กำหนด
+悬赏	ค่าหัว	mode	Bounty	approved	
+据点	ฐานที่มั่น	mode	Outpost	approved	
+和鸣	กาชา	system	Draw	approved	ระบบสุ่มรางวัล (ไม่ใช่ "เสมอ")
+任务	ภารกิจ	ui	Quest	approved	
+奖励	รางวัล	ui	Rewards	approved	
+活动	กิจกรรม	ui	Event	approved	
+活动奖励	รางวัลกิจกรรม	ui	Rewards	approved	
+获得	ได้รับ	ui	Obtained	approved	
+获取	รับ	ui	Obtain	approved	
+领取	รับ	ui	Claim	approved	
+使用	ใช้	ui	Use	approved	
+消耗	ใช้	ui	Cost	draft	
+对话	สนทนา	ui	Talk	approved	ไทยเดิมมี 4 แบบ
+交谈	พูดคุย	ui	Converse	approved	
+询问	สอบถาม	ui	Ask	approved	
+调查	สืบสวน	ui	Investigate	approved	
+交互	โต้ตอบ	ui	Interact	approved	
+前往	ไปยัง	ui	Go	approved	
+进入	เข้า	ui	Enter	approved	
+离开	ออกไป	ui	Leave	approved	
+退出	ออก	ui	Exit	approved	
+告辞	ขอตัวลา	ui	Farewell	approved	ไทยเดิมมี 11 แบบ
+开启	เปิด	ui	Open	approved	
+打开	เปิด	ui	Open	approved	
+解锁	ปลดล็อก	ui	Unlock	approved	
+状态	สถานะ	ui	Status	approved	
+目标	เป้าหมาย	ui	Objective	approved	
+成功	สำเร็จ	ui	Success	approved	
+失败	ล้มเหลว	ui	Failure	approved	
+完成	เสร็จสิ้น	ui	Completed	approved	
+开始	เริ่ม	ui	Start	approved	
+结束	สิ้นสุด	ui	Finish	approved	
+继续	ดำเนินการต่อ	ui	Continue	approved	
+确认	ยืนยัน	ui	Confirm	approved	
+取消	ยกเลิก	ui	Cancel	approved	
+查看	ดู	ui	View	draft	ไทยเดิม "ตรวจสอบ"
+选择	เลือก	ui	Select	approved	
+切换	สลับ	ui	Switch	approved	
+设置	ตั้งค่า	ui	Settings	approved	
+保存	บันทึก	ui	Save	approved	
+添加	เพิ่ม	ui	Add	approved	
+提交	ส่ง	ui	Submit	approved	
+申请	ส่งคำขอ	ui	Apply	draft	
+邀请	เชิญ	ui	Invite	approved	
+加入	เข้าร่วม	ui	Join	approved	
+跟随	ติดตาม	ui	Follow	approved	
+推荐	แนะนำ	ui	Recommended	approved	
+兑换	แลก	ui	Exchange	draft	
+购买	ซื้อ	ui	Purchase	approved	
+商店	ร้านค้า	ui	Shop	approved	
+制作	ประดิษฐ์	ui	Craft	draft	
+收集	รวบรวม	ui	Collect	approved	
+探索	สำรวจ	ui	Exploration	approved	
+挑战	ท้าทาย	ui	Challenge	approved	
+战斗	การต่อสู้	ui	Combat	approved	
+移动	เคลื่อนที่	ui	Move	approved	
+摆放	จัดวาง	ui	Place	approved	
+标记	ทำเครื่องหมาย	ui	Mark	draft	
+操作	การควบคุม	ui	Controls	draft	
+控制	ควบคุม	ui	Control	approved	
+动作	ท่าทาง	ui	Pose	approved	
+特效	เอฟเฟกต์	ui	VFX	approved	
+说明	คำอธิบาย	ui	Info	approved	
+其他	อื่น ๆ	ui	Other	approved	
+全部	ทั้งหมด	ui	All	approved	
+更多	เพิ่มเติม	ui	More	approved	
+普通	ทั่วไป	ui	Normal	approved	
+基础	พื้นฐาน	ui	Base	approved	
+完美	สมบูรณ์แบบ	ui	Perfect	approved	
+数量	จำนวน	ui	Quantity	approved	
+次数	จำนวนครั้ง	ui	Attempt	approved	
+积分	คะแนน	ui	Points	approved	
+难度	ความยาก	ui	Difficulty	approved	
+上限	ขีดจำกัด	ui	Upper Limit	approved	
+剩余时间	เวลาที่เหลือ	ui	Remaining Time	approved	
+限时	จำกัดเวลา	ui	Time-limited	approved	
+每周	รายสัปดาห์	ui	Weekly	approved	
+今日	วันนี้	ui	Today	approved	
+暂无	ยังไม่มี	ui	None yet	approved	
+玩家	ผู้เล่น	ui	Player	approved	
+好友	เพื่อน	ui	Friend	approved	
+成员	สมาชิก	ui	Member	approved	
+世界	โลก	ui	World	approved	
+测试	ทดสอบ	ui	Test	approved	
+加载中	กำลังโหลด	ui	Loading	approved	ไม่ใช่ "กำลังโหลดกลาง"
+数据加载中	กำลังโหลดข้อมูล	ui	Loading	approved	
+获取中	กำลังดึงข้อมูล	ui	Retrieving	approved	
+数据获取中	กำลังดึงข้อมูล	ui	Loading	approved	
+击败所有敌人	เอาชนะศัตรูทั้งหมด	ui	Defeat all enemies	approved	
+游侠亲启	ถึงจอมยุทธ์พเนจร	ui	Dear Wanderer	draft	หัวจดหมาย
+燕云	เยียนหยุน	place	Yanyun	approved	ไทยเดิม "นกนางแอ่นเมฆ" ผิด
+开封	ไคเฟิง	place	Kaifeng	approved	
+清河	ชิงเหอ	place	Qinghe	approved	
+杭州	หางโจว	place	Hangzhou	approved	
+河西	เหอซี	place	Hexi	approved	
+青州	ชิงโจว	place	Qingzhou	approved	
+凉州	เหลียงโจว	place	Liangzhou	approved	
+长安	ฉางอัน	place	Chang'an	approved	ข้อยกเว้น: ใช้ตามความนิยม
+江南	เจียงหนาน	place	Jiangnan	approved	
+青溪	ชิงซี	place	Qingxi	approved	
+十六巷	ตรอกสิบหก	place	Sixteen Lanes	draft	
+樊楼	หอฝาน	place	Revelry Hall	draft	ภัตตาคารดังในไคเฟิง
+皇宫	พระราชวัง	place	Imperial Palace	approved	
+神仙渡	ท่าเรือเทพเซียน	place	Heaven's Pier	draft	
+不见山	เขาปู้เจี้ยน	place	Hidden Mountain	draft	นโยบาย: ชื่อถอดเสียง + คำบอกประเภทแปล
+墨山道	ทางเขาม่อ	place	Mohist Hill	draft	
+晦谷	หุบเขาฮุ่ย	place	Mirkvale	draft	
+天泉	เทียนเฉวียน	faction	Well of Heaven	approved	
+九流门	สำนักจิ่วหลิว	faction	Nine Mortal Ways	approved	นโยบาย: ถอดเสียง+คำบอกประเภท
+文津馆	หอเหวินจิน	faction	Inkbound Order	approved	นโยบาย: ถอดเสียง+คำบอกประเภท
+绣金楼	หอซิ่วจิน	faction	Aureate Pavilion	approved	นโยบาย: ถอดเสียง+คำบอกประเภท; ไทยเดิม "หอปักทอง"
+醉花阴	จุ้ยฮวาอิน	faction	Velvet Shade	approved	นโยบาย: ถอดเสียง+คำบอกประเภท; ไทยเดิม "เมามายใต้เงาดอกไม้"
+醉花阴宾客	แขกแห่งจุ้ยฮวาอิน	faction	Velvet Shade Guest	approved	
+不羡仙	ปู้เซี่ยนเซียน	faction	Blissful Retreat	approved	นโยบาย: ถอดเสียง+คำบอกประเภท
+梨园	คณะหลีหยวน	faction	Masked Troupe	draft	
+无相皇	จักรพรรดิไร้รูป	person	The Void King	draft	
+妙妙喵	เมี่ยวเมี่ยวเหมียว	person	Meow Meow	approved	
+绝技	ท่าไม้ตาย	combat	Unique Technique	approved	
+减伤	ลดดาเมจที่ได้รับ	combat	DMG Reduction	approved	ทับศัพท์
+会心	คริติคอล	combat	Critical	approved	ทับศัพท์
+暴击	คริติคอล	combat	Critical	approved	ทับศัพท์
+会心伤害	ดาเมจคริติคอล	combat	Critical DMG	approved	ทับศัพท์
+持续伤害	ดาเมจต่อเนื่อง	combat	Damage Over Time	approved	ทับศัพท์
+血量	HP	combat	HP	approved	
+回血	ฟื้นฟู HP	combat	HP Regeneration	approved	
+减益	ดีบัฟ	combat	Debuff	approved	ทับศัพท์
+体力	พลังกาย	combat	Stamina	draft	แยกจาก 耐力
+精力	พลังงาน	system	Energy	draft	
+霸体	Super Armor	combat	Super Armor	approved	อังกฤษ: ทับศัพท์ไทยยาวและอ่านยาก
+格挡	บล็อก	combat	Parry/Block	approved	ทับศัพท์
+弹反	แพรี่	combat	Parry	approved	ผู้ใช้กำหนด
+连招	คอมโบ	combat	Combo	approved	ทับศัพท์
+眩晕	สตัน	combat	Stunned	approved	ทับศัพท์; ไทยเดิม "มึนงง"
+沉默	ไซเลนซ์	combat	Silence	approved	ทับศัพท์; ไทยเดิม "ความเงียบ"; ในบทพูดแปลว่า เงียบ
+击飞	น็อกอัป	combat	Knock Up	approved	ทับศัพท์
+击倒	น็อกดาวน์	combat	Knockdown	approved	ทับศัพท์
+无敌	อมตะ	combat	Invincibility	approved	ไทยเดิม "ไร้เทียมทาน"
+易伤	เปราะบาง	combat	Vulnerable	approved	
+中毒	ติดพิษ	combat	Poisoned	approved	
+冷却	คูลดาวน์	combat	Cooldown	approved	ทับศัพท์
+冷却时间	คูลดาวน์	combat	CD	approved	ทับศัพท์
+精英	Elite	combat	Elite	approved	อังกฤษ
+副本	ดันเจี้ยน	mode	Dungeon	approved	ทับศัพท์
+战令	Battle Pass	system	Battle Pass	approved	อังกฤษ: ทับศัพท์ไทยยาวและอ่านยาก
+赛季	ซีซั่น	system	Season	approved	ทับศัพท์
+段位	แรงก์	system	Rank	approved	ทับศัพท์
+经验	EXP	system	EXP	approved	ในบทพูดใช้ ประสบการณ์
+掉落	ดรอป	system	Drop	approved	ทับศัพท์
+签到	เช็กอิน	system	Sign In	approved	ทับศัพท์
+鸣金攻击	โจมตี Bellstrike	combat	Bellstrike Attack	approved	
+裂石攻击	โจมตี Stonesplit	combat	Stonesplit Attack	approved	
+破竹攻击	โจมตี Bamboocut	combat	Bamboocut Attack	approved	
+牵丝攻击	โจมตี Silkbind	combat	Silkbind Attack	approved	
