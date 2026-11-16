@@ -25,7 +25,12 @@ try { [Console]::OutputEncoding = [Text.Encoding]::UTF8 } catch {}
 # ---------------- ตั้งค่า ----------------
 $Repo            = ''   # GitHub "owner/repo" สำหรับอัปเดตอัตโนมัติ (ว่าง = ไม่เช็กออนไลน์) — make_release ใส่ให้
 $Files           = @('translate_words_map_th', 'translate_words_map_th_diff')
-$LocaleRel       = 'Package\HD\oversea\locale'
+# ที่เก็บไฟล์ภาษา: Steam / Epic ใช้ Package\HD, ตัวติดตั้งของเกมเอง (standalone) ใช้ LocalData\Patch\HD
+$LocaleRels      = @('Package\HD\oversea\locale', 'LocalData\Patch\HD\oversea\locale')
+$SteamAppId      = '3564740'
+# Epic: ใช้ค่าจาก manifest ของ Epic ก่อน ค่านี้เป็นค่าสำรอง (ค่าเดียวกับที่ม็อด wwm_brasileiro ใช้)
+$EpicUriDefault  = 'com.epicgames.launcher://apps/4806012311744989a5f96d97a42f7829%3Ad53f8dc5825748849ca0890279c3dad7%3Aa7d28f0e0935490b9d6f92dda1a7a75b?action=launch&silent=true'
+$ShortcutName    = 'Where Winds Meet (Thai).lnk'   # WScript.Shell บันทึกชื่อไฟล์ภาษาไทยไม่ได้
 
 $ModHome   = if ($env:WWMTHAI_HOME) { $env:WWMTHAI_HOME } else { Join-Path $env:LOCALAPPDATA 'WWM-Thai' }
 $DataDir   = Join-Path $ModHome 'data'
@@ -63,16 +68,38 @@ function Hash([string]$path) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return '' }
     return (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLower()
 }
-function GameFile([string]$game, [string]$f) { return Join-Path $game "$LocaleRel\$f" }
-function Test-Game([string]$dir) { return [bool]($dir -and (Test-Path -LiteralPath (GameFile $dir $Files[0]))) }
+# โฟลเดอร์ไฟล์ภาษาของเกมนี้ (ที่มีไฟล์ไทยหลักอยู่จริง) หรือ $null
+function Get-LocaleDir([string]$game) {
+    if (-not $game) { return $null }
+    foreach ($rel in $LocaleRels) {
+        $d = Join-Path $game $rel
+        if (Test-Path -LiteralPath (Join-Path $d $Files[0])) { return $d }
+    }
+    return $null
+}
+function GameFile([string]$game, [string]$f) {
+    $d = Get-LocaleDir $game
+    if (-not $d) { $d = Join-Path $game $LocaleRels[0] }
+    return Join-Path $d $f
+}
+function Test-Game([string]$dir) { return [bool](Get-LocaleDir $dir) }
 function Test-GameRunning { return [bool](Get-Process -Name 'wwm' -ErrorAction SilentlyContinue) }
 
-# ---------------- หาโฟลเดอร์เกม ----------------
-function Find-Game([switch]$Ask) {
-    if ($env:WWMTHAI_GAME) { return $env:WWMTHAI_GAME }
-    $st = Read-KV $StateFile
-    if (Test-Game $st['game_path']) { return $st['game_path'] }
-    # ค้นจากคลังเกมของ Steam (registry + libraryfolders.vdf)
+# ---------------- หาโฟลเดอร์เกม (Steam / Epic / ตัวติดตั้งของเกม) ----------------
+# แปลงสิ่งที่ผู้ใช้ให้มา (โฟลเดอร์เกม, wwm.exe, launcher.exe หรือโฟลเดอร์ wwm ที่มี wwm_standard) เป็นโฟลเดอร์เกม
+function Resolve-GameDir([string]$p) {
+    if (-not $p) { return $null }
+    $p = $p.Trim().Trim('"')
+    if (Test-Path -LiteralPath $p -PathType Leaf) {
+        if ((Split-Path $p -Leaf) -ieq 'wwm.exe') { for ($i = 0; $i -lt 4; $i++) { $p = Split-Path $p } }
+        else { $p = Split-Path $p }   # เช่น launcher.exe ของตัวติดตั้งเกม
+    }
+    foreach ($c in @($p, (Join-Path $p 'wwm_standard'), (Join-Path $p 'wwm_lite'))) {
+        if (Test-Game $c) { return $c }
+    }
+    return $null
+}
+function Get-SteamGames {
     $libs = @()
     try {
         $steam = (Get-ItemProperty -Path 'HKCU:\Software\Valve\Steam' -Name SteamPath).SteamPath -replace '/', '\'
@@ -84,19 +111,111 @@ function Find-Game([switch]$Ask) {
             }
         }
     } catch {}
-    foreach ($lib in $libs) {
-        $d = Join-Path $lib 'steamapps\common\Where Winds Meet'
-        if (Test-Game $d) { return $d }
+    foreach ($lib in $libs) { Resolve-GameDir (Join-Path $lib 'steamapps\common\Where Winds Meet') }
+}
+# Epic เก็บข้อมูลเกมที่ติดตั้งไว้เป็นไฟล์ JSON (*.item)
+function Get-EpicItems {
+    $dir = Join-Path $env:ProgramData 'Epic\EpicGamesLauncher\Data\Manifests'
+    if (-not (Test-Path -LiteralPath $dir)) { return }
+    foreach ($f in Get-ChildItem -LiteralPath $dir -Filter '*.item' -ErrorAction SilentlyContinue) {
+        try {
+            $j = Get-Content -LiteralPath $f.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($j.DisplayName -match 'Where Winds Meet' -and $j.InstallLocation) { $j }
+        } catch {}
     }
-    if (-not $Ask) { return $null }
+}
+function Get-EpicGames { foreach ($j in Get-EpicItems) { Resolve-GameDir $j.InstallLocation } }
+function Get-StandaloneGames {
+    # จากรายการโปรแกรมที่ติดตั้ง (Add/Remove Programs)
+    $keys = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
+    foreach ($k in $keys) {
+        Get-ItemProperty -Path $k -ErrorAction SilentlyContinue |
+            Where-Object { $_.DisplayName -match 'Where Winds Meet|燕云十六声' -and $_.InstallLocation } |
+            ForEach-Object { Resolve-GameDir $_.InstallLocation }
+    }
+    # ที่ติดตั้งยอดนิยม
+    foreach ($drive in 'C', 'D', 'E', 'F') {
+        foreach ($rel in 'Program Files\wwm', 'Program Files (x86)\wwm', 'Games\wwm', 'wwm') {
+            $p = "${drive}:\$rel"
+            if (Test-Path -LiteralPath $p) { Resolve-GameDir $p }
+        }
+    }
+}
+function Find-AllGames {
+    $seen = @{}
+    foreach ($g in @(Get-SteamGames) + @(Get-EpicGames) + @(Get-StandaloneGames)) {
+        if ($g -and -not $seen.ContainsKey($g.ToLower())) { $seen[$g.ToLower()] = $true; $g }
+    }
+}
+function Get-Platform([string]$game) {
+    if ($game -match '\\steamapps\\common\\') { return 'steam' }
+    foreach ($j in Get-EpicItems) { if ((Resolve-GameDir $j.InstallLocation) -eq $game) { return 'epic' } }
+    if ((Split-Path $game -Leaf) -match '^wwm_(standard|lite)$' -or (Get-LocaleDir $game) -like '*\LocalData\*') { return 'standalone' }
+    return 'other'
+}
+function Find-Game([switch]$Ask) {
+    if ($env:WWMTHAI_GAME) { return (Resolve-GameDir $env:WWMTHAI_GAME) }   # สำหรับทดสอบ
+    $st = Read-KV $StateFile
+    if (Test-Game $st['game_path']) { return $st['game_path'] }
+    $all = @(Find-AllGames)
+    if ($all.Count -eq 1) { return $all[0] }
+    if (-not $Ask) { if ($all.Count) { return $all[0] } else { return $null } }
+    if ($all.Count -gt 1) {
+        Say 'พบเกมมากกว่าหนึ่งที่:' 'Yellow'
+        for ($i = 0; $i -lt $all.Count; $i++) { Say ("  [{0}] {1}  ({2})" -f ($i + 1), $all[$i], (Get-Platform $all[$i])) }
+        $n = Read-Host 'เลือกหมายเลข'
+        if ($n -match '^\d+$' -and [int]$n -ge 1 -and [int]$n -le $all.Count) { return $all[[int]$n - 1] }
+    }
     while ($true) {
-        Say 'หาโฟลเดอร์เกมไม่เจอ: ลากโฟลเดอร์ "Where Winds Meet" มาวางในหน้าต่างนี้ แล้วกด Enter (กด Enter เปล่า ๆ = ยกเลิก)' 'Yellow'
-        $p = (Read-Host 'โฟลเดอร์เกม').Trim().Trim('"')
-        if (-not $p) { return $null }
-        if (Test-Path -LiteralPath $p -PathType Leaf) { for ($i = 0; $i -lt 4; $i++) { $p = Split-Path $p } }  # ลาก wwm.exe มาก็ได้
-        if (Test-Game $p) { return $p }
+        Say 'หาโฟลเดอร์เกมไม่เจอ: ลากโฟลเดอร์เกม (หรือไฟล์ wwm.exe / launcher.exe) มาวางในหน้าต่างนี้ แล้วกด Enter (กด Enter เปล่า ๆ = ยกเลิก)' 'Yellow'
+        $p = Read-Host 'โฟลเดอร์เกม'
+        if (-not $p.Trim()) { return $null }
+        $g = Resolve-GameDir $p
+        if ($g) { return $g }
         Say "ไม่พบไฟล์ภาษาของเกมใน: $p" 'Red'
     }
+}
+
+# ---------------- เปิดเกม (สำหรับ shortcut / Epic / ตัวติดตั้งของเกม) ----------------
+function Get-EpicUri([string]$game) {
+    foreach ($j in Get-EpicItems) {
+        if ((Resolve-GameDir $j.InstallLocation) -eq $game -and $j.CatalogNamespace -and $j.CatalogItemId -and $j.AppName) {
+            return "com.epicgames.launcher://apps/$($j.CatalogNamespace)%3A$($j.CatalogItemId)%3A$($j.AppName)?action=launch&silent=true"
+        }
+    }
+    return $EpicUriDefault
+}
+function Start-Game([string]$game) {
+    $platform = Get-Platform $game
+    $target = switch ($platform) {
+        'steam' { "steam://rungameid/$SteamAppId" }
+        'epic'  { Get-EpicUri $game }
+        default {
+            # ตัวติดตั้งของเกม: เปิดผ่าน launcher.exe (อัปเดตเกมให้ก่อน) ถ้ามี ไม่งั้นเปิด wwm.exe ตรง ๆ
+            $l = @((Join-Path (Split-Path $game) 'launcher.exe'), (Join-Path $game 'launcher.exe')) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+            if ($l) { $l } else { Join-Path $game 'Engine\Binaries\Win64r\wwm.exe' }
+        }
+    }
+    Log "launch ($platform): $target"
+    if ($env:WWMTHAI_NOLAUNCH) { Say "(ทดสอบ) จะเปิด: $target"; return }
+    Start-Process -FilePath $target
+}
+function Get-ShortcutPath {
+    $desk = if ($env:WWMTHAI_DESKTOP) { $env:WWMTHAI_DESKTOP } else { [Environment]::GetFolderPath('Desktop') }   # override สำหรับทดสอบ
+    return Join-Path $desk $ShortcutName
+}
+function New-PlayShortcut {
+    $lnk = Get-ShortcutPath
+    $ws = New-Object -ComObject WScript.Shell
+    $s = $ws.CreateShortcut($lnk)
+    $s.TargetPath = Join-Path $ModHome 'play.bat'
+    $s.WorkingDirectory = $ModHome
+    $s.WindowStyle = 7   # เปิดหน้าต่างแบบย่อ
+    $s.Description = 'Check the Thai mod, then start Where Winds Meet'
+    $s.Save()
+    return $lnk
 }
 
 # ---------------- สถานะไฟล์ในเกม ----------------
@@ -235,6 +354,21 @@ function Show-LaunchOption {
     Say '  Steam > คลิกขวาที่เกม > Properties > General > Launch Options แล้ววางบรรทัดนี้ (ก๊อปไว้ให้แล้ว กด Ctrl+V):'
     Say "  $line" 'White'
 }
+# Epic / ตัวติดตั้งของเกม ใส่คำสั่งก่อนเปิดเกมไม่ได้ จึงให้เปิดเกมผ่าน shortcut บน Desktop แทน
+function Show-PlayShortcut([string]$platform) {
+    Say ''
+    try {
+        $lnk = New-PlayShortcut
+        Say 'อยากให้ม็อดอัปเดตเองทุกครั้งที่เล่น (แนะนำ):' 'Cyan'
+        Say "  เปิดเกมจาก shortcut บน Desktop: $([IO.Path]::GetFileNameWithoutExtension($lnk))" 'White'
+        $how = if ($platform -eq 'epic') { 'Epic Games Launcher' } else { 'launcher ของเกม' }
+        Say "  shortcut จะเช็ก/ซ่อมคำแปลก่อน แล้วเปิดเกมผ่าน $how ให้เอง"
+        Say "  (ถ้าเปิดจาก $how ตรง ๆ ก็เล่นได้ แต่ม็อดจะไม่ได้เช็กอัปเดตรอบนั้น)"
+    } catch {
+        Say "สร้าง shortcut ไม่สำเร็จ: $($_.Exception.Message)" 'Yellow'
+        Say "  เปิดเกมด้วย $(Join-Path $ModHome 'play.bat') แทนได้"
+    }
+}
 
 function Main-Install {
     Say '=== ม็อดแปลไทย Where Winds Meet: ติดตั้ง ===' 'Cyan'
@@ -244,7 +378,8 @@ function Main-Install {
     if (-not $kitMan['mod_version']) { Say 'ไม่พบโฟลเดอร์ data: แตกไฟล์ zip ทั้งหมดก่อน แล้วรันจากโฟลเดอร์ที่แตกออกมา' 'Red'; $script:ExitCode = 1; return }
     $game = Find-Game -Ask
     if (-not $game) { Say 'ยกเลิก: ไม่ได้ระบุโฟลเดอร์เกม' 'Red'; $script:ExitCode = 1; return }
-    Say "พบเกมที่: $game"
+    $platform = Get-Platform $game
+    Say "พบเกมที่: $game  ($platform)"
     Say "ม็อดเวอร์ชัน: $($kitMan['mod_version'])  (สร้างสำหรับเกมเวอร์ชัน $($kitMan['game_build']))"
 
     $oldMan = Read-KV (Join-Path $DataDir 'manifest.txt')
@@ -272,13 +407,26 @@ function Main-Install {
     $st = Read-KV $StateFile; $st['game_path'] = $game; Write-KV $StateFile $st
     Say "สำรองไฟล์ต้นฉบับไว้ที่: $BackupDir"
     Say "ติดตั้งสำเร็จ! (ม็อด $($man['mod_version'])) เข้าเกมแล้วตั้งภาษาเป็น ไทย" 'Green'
-    Show-LaunchOption
+    if ($platform -eq 'steam') { Show-LaunchOption } else { Show-PlayShortcut $platform }
 }
 
 function Main-Play {
-    $game = $GameExe
-    for ($i = 0; $i -lt 4; $i++) { $game = Split-Path $game }   # ...\Engine\Binaries\Win64r\wwm.exe -> โฟลเดอร์เกม
-    if (-not (Test-Game $game)) { Say "ไม่พบไฟล์ภาษาของเกมที่ '$game': ข้ามม็อด" 'Yellow'; return }
+    # มี -GameExe = ถูกเรียกจาก Steam Launch Options (play.bat เปิดเกมเองหลังจากนี้)
+    # ไม่มี = เปิดจาก shortcut: เช็ก/ซ่อมแล้วสคริปต์นี้เปิดเกมให้ (Steam / Epic / launcher ของเกม)
+    $launch = -not $GameExe
+    if ($launch) {
+        $game = Find-Game
+        if (-not $game) { Say 'หาโฟลเดอร์เกมไม่เจอ: รัน install.bat ก่อน' 'Red'; $script:ExitCode = 1; return }
+        try { Update-Mod $game } catch { Say "เกิดข้อผิดพลาด: $($_.Exception.Message)" 'Red'; Log ($_ | Out-String) }
+        Start-Game $game
+        return
+    }
+    $game = Resolve-GameDir $GameExe
+    if (-not $game) { Say "ไม่พบไฟล์ภาษาของเกมจาก '$GameExe': ข้ามม็อด" 'Yellow'; return }
+    Update-Mod $game
+}
+
+function Update-Mod([string]$game) {
     $st = Read-KV $StateFile; $st['game_path'] = $game
     $man = Read-KV (Join-Path $DataDir 'manifest.txt')
     if (-not $man['mod_version']) { Say 'ยังไม่ได้ติดตั้งม็อด (รัน install.bat ก่อน): เปิดเกมตามปกติ' 'Yellow'; return }
@@ -318,14 +466,22 @@ function Main-Uninstall {
     if (-not $game) { Say 'ยกเลิก: ไม่ได้ระบุโฟลเดอร์เกม' 'Red'; $script:ExitCode = 1; return }
     Say "เกมที่: $game"
     $man = Read-KV (Join-Path $DataDir 'manifest.txt')
+    $platform = Get-Platform $game
     if (-not (Restore-Original $game $man)) {
-        Say 'คืนไฟล์บางไฟล์ไม่ได้: ใช้ Steam > คลิกขวาที่เกม > Properties > Installed Files > Verify integrity of game files' 'Yellow'
+        $verify = switch ($platform) {
+            'steam' { 'Steam > คลิกขวาที่เกม > Properties > Installed Files > Verify integrity of game files' }
+            'epic'  { 'Epic Games Launcher > Library > ... ที่เกม > Manage > Verify' }
+            default { 'ปุ่มตรวจสอบ/ซ่อมไฟล์ (Verify / Repair) ใน launcher ของเกม' }
+        }
+        Say "คืนไฟล์บางไฟล์ไม่ได้: ใช้ $verify" 'Yellow'
         $script:ExitCode = 1
     } else {
         Say 'คืนไฟล์ภาษาไทยต้นฉบับของเกมแล้ว' 'Green'
     }
+    $lnk = Get-ShortcutPath
+    if (Test-Path -LiteralPath $lnk) { Remove-Item -LiteralPath $lnk -Force; Say 'ลบ shortcut บน Desktop แล้ว' }
     Say ''
-    Say 'อย่าลืม: ลบบรรทัด play.bat ออกจาก Steam > Properties > Launch Options' 'Cyan'
+    if ($platform -eq 'steam') { Say 'อย่าลืม: ลบบรรทัด play.bat ออกจาก Steam > Properties > Launch Options' 'Cyan' }
     Say "ไฟล์ม็อดและไฟล์สำรองอยู่ที่ $ModHome (ลบทิ้งได้)"
 }
 
