@@ -13,28 +13,28 @@ zh	th	type	en	status	note
 小人	ข้าน้อย	pronoun		approved	
 贫僧	อาตมา	pronoun		approved	
 贫道	ข้าผู้ถือพรต	pronoun		approved	
-公子	คุณชาย	address	Young Master	draft	
-大哥	พี่ใหญ่	address	Elder Brother	draft	
-姐姐	พี่สาว	address	Elder Sister	draft	
+公子	คุณชาย	address	Young Master	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+大哥	พี่ใหญ่	address	Elder Brother	approved	ในบทพูดใช้ พี่ชาย/พี่ ได้ตามบริบท; approved 2026-11-17 (ใช้จริงในงานแปล)
+姐姐	พี่สาว	address	Elder Sister	approved	ในบทพูดใช้ พี่/พี่หญิง ได้ตามบริบท; approved 2026-11-17 (ใช้จริงในงานแปล)
 少东家	นายน้อย	address	Young Master	approved	ผู้ใช้กำหนด 2026-11-17; ผู้เล่นอาจเป็นหญิง ห้ามใช้ คุณชายน้อย
-掌柜	เถ้าแก่	title	Shopkeeper	draft	
-将军	แม่ทัพ	title	General	draft	ยุคโบราณใช้แม่ทัพ ไม่ใช่นายพล
+掌柜	เถ้าแก่	title	Shopkeeper	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+将军	แม่ทัพ	title	General	approved	ยุคโบราณใช้แม่ทัพ ไม่ใช่นายพล; approved 2026-11-17 (ใช้จริงในงานแปล)
 官兵	นายทหาร	title	Imperial Soldier	approved	ผู้ใช้กำหนด
-士兵	ทหาร	title	Soldier	draft	
-百姓	ชาวบ้าน	title	Commoner	draft	
-村民	ชาวบ้าน	title	Villager	draft	
-宾客	แขก	title	Guest	draft	
-客人	แขก	title	Guest	draft	
-大侠	ยอดจอมยุทธ์	title	Great Hero	draft	
-侠客	จอมยุทธ์	title	Swordsman	draft	
-游侠	จอมยุทธ์พเนจร	title	Wanderer	draft	
-江湖人	คนในยุทธภพ	title	Swordsman	draft	
-天涯客	ผู้พเนจร	title	Wayfarer	draft	
-伙伴	สหาย	title	Companion	draft	
+士兵	ทหาร	title	Soldier	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+百姓	ชาวบ้าน	title	Commoner	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+村民	ชาวบ้าน	title	Villager	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+宾客	แขก	title	Guest	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+客人	แขก	title	Guest	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+大侠	ยอดจอมยุทธ์	title	Great Hero	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+侠客	จอมยุทธ์	title	Swordsman	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+游侠	จอมยุทธ์พเนจร	title	Wanderer	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+江湖人	คนในยุทธภพ	title	Swordsman	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+天涯客	ผู้พเนจร	title	Wayfarer	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+伙伴	สหาย	title	Companion	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 江湖	ยุทธภพ	lore	Jianghu	approved	
-武林	ยุทธภพ	lore	Wulin	draft	
+武林	ยุทธภพ	lore	Wulin	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 门派	สำนัก	lore	Sect	approved	
-流派	สายวิชา	system	Path	draft	ไทยเดิม "สำนัก" ชนกับ 门派
+流派	สายวิชา	system	Path	approved	ไทยเดิม "สำนัก" ชนกับ 门派; approved 2026-11-17 (ใช้จริงในงานแปล)
 武学	วิทยายุทธ์	system	Martial Arts	approved	ผู้ใช้กำหนด (ไทยเดิม "ศิลปะการต่อสู้")
 武学技	สกิลวิทยายุทธ์	system	Martial Art Skill	approved	ทับศัพท์
 心法	จิตวิชา	system	Inner Way	approved	ผู้ใช้กำหนด 2026-11-17 (ตรงกับไทยเดิม; เดิมเราใช้ "เคล็ดวิชา")
@@ -43,9 +43,9 @@ zh	th	type	en	status	note
 真气伤害	ดาเมจลมปราณ	combat	Qi Damage	approved	ทับศัพท์
 气血	HP	combat	HP	approved	ค่าสถานะ; เนื้อเรื่องเชิงการแพทย์ใช้ ลมปราณและโลหิต
 气血最大值	HP สูงสุด	combat	Max HP	approved	
-外功	กายภาพ	combat	Physical	draft	ใช้ในค่าสถานะ
-外功攻击	โจมตีกายภาพ	combat	Physical Attack	draft	
-最小外功攻击	โจมตีกายภาพต่ำสุด	combat	Min Physical Attack	draft	
+外功	กายภาพ	combat	Physical	approved	ใช้ในค่าสถานะ; approved 2026-11-17 (ใช้จริงในงานแปล)
+外功攻击	โจมตีกายภาพ	combat	Physical Attack	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+最小外功攻击	โจมตีกายภาพต่ำสุด	combat	Min Physical Attack	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 攻击	โจมตี	combat	Attack	approved	
 伤害	ดาเมจ	combat	Damage	approved	ทับศัพท์; ในบทพูด/เนื้อเรื่องใช้ บาดเจ็บ/ทำร้าย ตามบริบท
 造成伤害	สร้างดาเมจ	combat	Damage Dealt	approved	ทับศัพท์
@@ -55,7 +55,7 @@ zh	th	type	en	status	note
 伤害降低	ลดดาเมจ	combat	Damage Down	approved	ทับศัพท์
 会心率	อัตราคริติคอล	combat	Critical Rate	approved	
 防御	ป้องกัน	combat	Defense	approved	
-强韧	ความแกร่ง	combat	Tenacity	draft	
+强韧	ความแกร่ง	combat	Tenacity	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 耐力	สตามินา	combat	Endurance	approved	ทับศัพท์
 治疗	รักษา	combat	Heal	approved	
 护盾	ชิลด์	combat	Shield	approved	ทับศัพท์
@@ -63,52 +63,52 @@ zh	th	type	en	status	note
 蓄力	ชาร์จพลัง	combat	Charged Attack	approved	
 蓄力技	สกิลชาร์จ	combat	Charged Skill	approved	ทับศัพท์
 特殊技	สกิลพิเศษ	combat	Special Skill	approved	ทับศัพท์
-派生技	ท่าคอมโบ	combat	Varied Combo	draft	ทับศัพท์
+派生技	ท่าคอมโบ	combat	Varied Combo	approved	ทับศัพท์; approved 2026-11-17 (ใช้จริงในงานแปล)
 重击	โจมตีหนัก	combat	Heavy Attack	approved	
 轻击	โจมตีเบา	combat	Light Attack	approved	
 闪避	หลบหลีก	combat	Dodge	approved	
 完美闪避	หลบหลีกสมบูรณ์แบบ	combat	Perfect Dodge	approved	
-卸势	ปัดป้อง	combat	Deflection	draft	ไทยเดิม "ปลดปล่อยพลัง" ผิดความหมาย
+卸势	ปัดป้อง	combat	Deflection	approved	ไทยเดิม "ปลดปล่อยพลัง" ผิดความหมาย; approved 2026-11-17 (ใช้จริงในงานแปล)
 受击	โดนโจมตี	combat	Taking Hit	approved	
 处决	ปลิดชีพ	combat	Execution	approved	
-定身	ตรึงร่าง	combat	Immobilized	draft	
+定身	ตรึงร่าง	combat	Immobilized	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 首领	บอส	combat	Boss	approved	ทับศัพท์; ในบทพูดหมายถึงหัวหน้า ใช้ "หัวหน้า"
 鸣金	Bellstrike	path	Bellstrike	approved	อังกฤษตามชื่อทางการ (ผู้ใช้กำหนด)
 裂石	Stonesplit	path	Stonesplit	approved	อังกฤษตามชื่อทางการ (ผู้ใช้กำหนด)
 破竹	Bamboocut	path	Bamboocut	approved	อังกฤษตามชื่อทางการ (ผู้ใช้กำหนด)
 牵丝	Silkbind	path	Silkbind	approved	อังกฤษตามชื่อทางการ (ผู้ใช้กำหนด)
-陌刀	ดาบม่อ	item	Mo Blade	draft	ดาบยาวสมัยถัง
-胫甲	สนับแข้ง	item	Greaves	draft	ไทยเดิม "เกราะขา"
+陌刀	ดาบม่อ	item	Mo Blade	approved	ดาบยาวสมัยถัง; approved 2026-11-17 (ใช้จริงในงานแปล)
+胫甲	สนับแข้ง	item	Greaves	approved	ไทยเดิม "เกราะขา"; approved 2026-11-17 (ใช้จริงในงานแปล)
 武器	อาวุธ	item	Weapon	approved	
 装备	อุปกรณ์	item	Gear	approved	
 套装	เซ็ต	item	Set	approved	ทับศัพท์
 道具	ไอเทม	item	Item	approved	
 宝箱	หีบสมบัติ	item	Treasure Chest	approved	
 外观	รูปลักษณ์	item	Appearance	approved	
-属性	ค่าสถานะ	system	Attributes	draft	ไทยเดิม "คุณสมบัติ"
-等级	เลเวล	system	Level	draft	ทับศัพท์; ถ้าหมายถึงขั้น/เกรดของไอเทมหรือโหมด ใช้ ระดับ
+属性	ค่าสถานะ	system	Attributes	approved	ไทยเดิม "คุณสมบัติ"; approved 2026-11-17 (ใช้จริงในงานแปล)
+等级	เลเวล	system	Level	approved	ทับศัพท์; ถ้าหมายถึงขั้น/เกรดของไอเทมหรือโหมด ใช้ ระดับ; approved 2026-11-17 (ใช้จริงในงานแปล)
 技能	สกิล	system	Skills	approved	ทับศัพท์
 天赋	พรสวรรค์	system	Talents	approved	
-突破	ทะลวงขั้น	system	Breakthrough	draft	
-强化	เสริมแกร่ง	system	Enhance	draft	
+突破	ทะลวงขั้น	system	Breakthrough	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+强化	เสริมแกร่ง	system	Enhance	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 升级	อัปเกรด	system	Upgrade	approved	ทับศัพท์
-侠境	แดนจอมยุทธ์	system	Hero's Realm	draft	
-侠名	ฉายาจอมยุทธ์	system	Hero Title	draft	
-话术	วาทศิลป์	system	Gift of Gab	draft	ไทยเดิม "ศิลปะการพูด"
-试剑	ประลองดาบ	mode	Sword Trial	draft	
-试炼	บททดสอบ	mode	Trial	draft	
+侠境	แดนจอมยุทธ์	system	Hero's Realm	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+侠名	ฉายาจอมยุทธ์	system	Hero Title	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+话术	วาทศิลป์	system	Gift of Gab	approved	ไทยเดิม "ศิลปะการพูด"; approved 2026-11-17 (ใช้จริงในงานแปล)
+试剑	ประลองดาบ	mode	Sword Trial	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+试炼	บททดสอบ	mode	Trial	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 单人	เดี่ยว	mode	Solo	approved	
-单人模式	โหมดเดี่ยว	mode	Solo Mode	draft	
-多人	หลายผู้เล่น	mode	Multiplayer	draft	
+单人模式	โหมดเดี่ยว	mode	Solo Mode	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+多人	หลายผู้เล่น	mode	Multiplayer	approved	เฉพาะโหมดหลายผู้เล่น; ในเนื้อเรื่อง = หลายคน/คนมากมาย; approved 2026-11-17 (ใช้จริงในงานแปล)
 联机	Co-op	mode	Co-op	approved	ผู้ใช้กำหนด
-组队	ตั้งทีม	mode	Group Up	draft	
+组队	ตั้งทีม	mode	Group Up	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 队伍	ทีม	mode	Team	approved	
 玩法	รูปแบบการเล่น	mode	Mode	approved	
 百业	กิลด์	system	Guild	approved	ทับศัพท์
 家业	คฤหาสน์	system	Homestead / Legacy	approved	ครอบคลุมบ้านและบริวาร
 建造	ก่อสร้าง	system	Build	approved	
-建筑	สิ่งก่อสร้าง	system	Building	draft	ไทยเดิม "สถาปัตยกรรม"
-建造组件	ชิ้นส่วนก่อสร้าง	system	Building Component	draft	
+建筑	สิ่งก่อสร้าง	system	Building	approved	ไทยเดิม "สถาปัตยกรรม"; approved 2026-11-17 (ใช้จริงในงานแปล)
+建造组件	ชิ้นส่วนก่อสร้าง	system	Building Component	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 画舫	เรือสำราญ	system	Painted Boat	approved	
 止戈	อารีน่า	mode	Arena	approved	โหมด PvP จัดอันดับ
 止戈定音	อารีน่าชี้ชะตา	mode	Arena Attune	approved	
@@ -125,7 +125,7 @@ zh	th	type	en	status	note
 获取	รับ	ui	Obtain	approved	
 领取	รับ	ui	Claim	approved	
 使用	ใช้	ui	Use	approved	
-消耗	ใช้	ui	Cost	draft	
+消耗	ใช้	ui	Cost	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 对话	สนทนา	ui	Talk	approved	ไทยเดิมมี 4 แบบ
 交谈	พูดคุย	ui	Converse	approved	
 询问	สอบถาม	ui	Ask	approved	
@@ -149,30 +149,30 @@ zh	th	type	en	status	note
 继续	ดำเนินการต่อ	ui	Continue	approved	
 确认	ยืนยัน	ui	Confirm	approved	
 取消	ยกเลิก	ui	Cancel	approved	
-查看	ดู	ui	View	draft	ไทยเดิม "ตรวจสอบ"
+查看	ดู	ui	View	approved	ไทยเดิม "ตรวจสอบ"; approved 2026-11-17 (ใช้จริงในงานแปล)
 选择	เลือก	ui	Select	approved	
 切换	สลับ	ui	Switch	approved	
 设置	ตั้งค่า	ui	Settings	approved	
 保存	บันทึก	ui	Save	approved	
 添加	เพิ่ม	ui	Add	approved	
 提交	ส่ง	ui	Submit	approved	
-申请	ส่งคำขอ	ui	Apply	draft	
+申请	ส่งคำขอ	ui	Apply	approved	สมัคร (เข้าร่วมกลุ่ม/สำนัก) หรือ ส่งคำขอ ตามบริบท; approved 2026-11-17 (ใช้จริงในงานแปล)
 邀请	เชิญ	ui	Invite	approved	
 加入	เข้าร่วม	ui	Join	approved	
 跟随	ติดตาม	ui	Follow	approved	
 推荐	แนะนำ	ui	Recommended	approved	
-兑换	แลก	ui	Exchange	draft	
+兑换	แลก	ui	Exchange	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 购买	ซื้อ	ui	Purchase	approved	
 商店	ร้านค้า	ui	Shop	approved	
-制作	ประดิษฐ์	ui	Craft	draft	
+制作	ประดิษฐ์	ui	Craft	approved	ในบทพูดใช้ ทำ/ผลิต ได้; approved 2026-11-17 (ใช้จริงในงานแปล)
 收集	รวบรวม	ui	Collect	approved	
 探索	สำรวจ	ui	Exploration	approved	
 挑战	ท้าทาย	ui	Challenge	approved	
 战斗	การต่อสู้	ui	Combat	approved	
 移动	เคลื่อนที่	ui	Move	approved	
 摆放	จัดวาง	ui	Place	approved	
-标记	ทำเครื่องหมาย	ui	Mark	draft	
-操作	การควบคุม	ui	Controls	draft	
+标记	ทำเครื่องหมาย	ui	Mark	approved	คำนาม = เครื่องหมาย; กริยา = ทำเครื่องหมาย; approved 2026-11-17 (ใช้จริงในงานแปล)
+操作	การควบคุม	ui	Controls	approved	หน้าตั้งค่า = การควบคุม; การกระทำทั่วไป = การดำเนินการ; approved 2026-11-17 (ใช้จริงในงานแปล)
 控制	ควบคุม	ui	Control	approved	
 动作	ท่าทาง	ui	Pose	approved	
 特效	เอฟเฟกต์	ui	VFX	approved	
@@ -203,7 +203,7 @@ zh	th	type	en	status	note
 获取中	กำลังดึงข้อมูล	ui	Retrieving	approved	
 数据获取中	กำลังดึงข้อมูล	ui	Loading	approved	
 击败所有敌人	เอาชนะศัตรูทั้งหมด	ui	Defeat all enemies	approved	
-游侠亲启	ถึงจอมยุทธ์พเนจร	ui	Dear Wanderer	draft	หัวจดหมาย
+游侠亲启	ถึงจอมยุทธ์พเนจร	ui	Dear Wanderer	approved	หัวจดหมาย; approved 2026-11-17 (ใช้จริงในงานแปล)
 燕云	เยียนหยุน	place	Yanyun	approved	ไทยเดิม "นกนางแอ่นเมฆ" ผิด
 开封	ไคเฟิง	place	Kaifeng	approved	
 清河	ชิงเหอ	place	Qinghe	approved	
@@ -214,13 +214,13 @@ zh	th	type	en	status	note
 长安	ฉางอัน	place	Chang'an	approved	ข้อยกเว้น: ใช้ตามความนิยม
 江南	เจียงหนาน	place	Jiangnan	approved	
 青溪	ชิงซี	place	Qingxi	approved	
-十六巷	ตรอกสิบหก	place	Sixteen Lanes	draft	
-樊楼	หอฝาน	place	Revelry Hall	draft	ภัตตาคารดังในไคเฟิง
+十六巷	ตรอกสิบหก	place	Sixteen Lanes	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+樊楼	หอฝาน	place	Revelry Hall	approved	ภัตตาคารดังในไคเฟิง; approved 2026-11-17 (ใช้จริงในงานแปล)
 皇宫	พระราชวัง	place	Imperial Palace	approved	
-神仙渡	ท่าเรือเทพเซียน	place	Heaven's Pier	draft	
-不见山	เขาปู้เจี้ยน	place	Hidden Mountain	draft	นโยบาย: ชื่อถอดเสียง + คำบอกประเภทแปล
-墨山道	ทางเขาม่อ	place	Mohist Hill	draft	
-晦谷	หุบเขาฮุ่ย	place	Mirkvale	draft	
+神仙渡	ท่าเรือเทพเซียน	place	Heaven's Pier	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+不见山	เขาปู้เจี้ยน	place	Hidden Mountain	approved	นโยบาย: ชื่อถอดเสียง + คำบอกประเภทแปล; approved 2026-11-17 (ใช้จริงในงานแปล)
+墨山道	ทางเขาม่อ	place	Mohist Hill	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+晦谷	หุบเขาฮุ่ย	place	Mirkvale	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 天泉	เทียนเฉวียน	faction	Well of Heaven	approved	
 九流门	สำนักจิ่วหลิว	faction	Nine Mortal Ways	approved	นโยบาย: ถอดเสียง+คำบอกประเภท
 文津馆	หอเหวินจิน	faction	Inkbound Order	approved	นโยบาย: ถอดเสียง+คำบอกประเภท
@@ -228,8 +228,8 @@ zh	th	type	en	status	note
 醉花阴	จุ้ยฮวาอิน	faction	Velvet Shade	approved	นโยบาย: ถอดเสียง+คำบอกประเภท; ไทยเดิม "เมามายใต้เงาดอกไม้"
 醉花阴宾客	แขกแห่งจุ้ยฮวาอิน	faction	Velvet Shade Guest	approved	
 不羡仙	ปู้เซี่ยนเซียน	faction	Blissful Retreat	approved	นโยบาย: ถอดเสียง+คำบอกประเภท
-梨园	คณะหลีหยวน	faction	Masked Troupe	draft	
-无相皇	จักรพรรดิไร้รูป	person	The Void King	draft	
+梨园	คณะหลีหยวน	faction	Masked Troupe	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
+无相皇	จักรพรรดิไร้รูป	person	The Void King	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 妙妙喵	เมี่ยวเมี่ยวเหมียว	person	Meow Meow	approved	
 绝技	ท่าไม้ตาย	combat	Unique Technique	approved	
 减伤	ลดดาเมจที่ได้รับ	combat	DMG Reduction	approved	ทับศัพท์
@@ -240,8 +240,8 @@ zh	th	type	en	status	note
 血量	HP	combat	HP	approved	
 回血	ฟื้นฟู HP	combat	HP Regeneration	approved	
 减益	ดีบัฟ	combat	Debuff	approved	ทับศัพท์
-体力	พลังกาย	combat	Stamina	draft	แยกจาก 耐力
-精力	พลังงาน	system	Energy	draft	
+体力	พลังกาย	combat	Stamina	approved	แยกจาก 耐力; แยกจาก 耐力 (สตามินา); approved 2026-11-17 (ใช้จริงในงานแปล)
+精力	พลังงาน	system	Energy	approved	approved 2026-11-17 (ใช้จริงในงานแปล)
 霸体	Super Armor	combat	Super Armor	approved	อังกฤษ: ทับศัพท์ไทยยาวและอ่านยาก
 格挡	บล็อก	combat	Parry/Block	approved	ทับศัพท์
 弹反	แพรี่	combat	Parry	approved	ผู้ใช้กำหนด
