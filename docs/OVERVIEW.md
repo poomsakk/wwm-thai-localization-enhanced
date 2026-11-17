@@ -68,7 +68,7 @@ Text block (หลัง zstd decompress) = hash table แบบ open addressing
 - **ตั้งแต่อัปเดต 2026-11:** ภาษาไทยแบ่งเป็นสองไฟล์ใน Package คือไฟล์หลัก (~718k key) และ `_diff` (~467k key)
   `build_mod.bat` จึงแพตช์ทั้งสองไฟล์
 - **ไฟล์ใน `LocalData/Patch`:** ตัว patcher ของเกมจะ **เขียนทับคืนเป็นของเดิม** ทุกครั้งที่เปิดเกม
-  บน Steam / Epic ม็อดจึงแก้เฉพาะไฟล์ใน `Package`
+  บน Steam ม็อดจึงแก้เฉพาะไฟล์ใน `Package`
 - **ตัวติดตั้งของเกมเอง (standalone, beta):** ไฟล์ภาษาไทยทั้งหมดอยู่ใน `LocalData/Patch`
   (ไฟล์หลักตัวเดียวกับ Package ของ Steam + `_diff` ตัวเดียวกับ LocalData ของ Steam)
   - build: `build_mod.bat` สร้าง `work/build/sa_translate_words_map_th_diff` จาก `backup/original/LocalData`
