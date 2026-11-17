@@ -68,7 +68,16 @@ Text block (หลัง zstd decompress) = hash table แบบ open addressing
 - **ตั้งแต่อัปเดต 2026-11:** ภาษาไทยแบ่งเป็นสองไฟล์ใน Package คือไฟล์หลัก (~718k key) และ `_diff` (~467k key)
   `build_mod.bat` จึงแพตช์ทั้งสองไฟล์
 - **ไฟล์ใน `LocalData/Patch`:** ตัว patcher ของเกมจะ **เขียนทับคืนเป็นของเดิม** ทุกครั้งที่เปิดเกม
-  ดังนั้นแก้ตรงนั้นไม่ได้ผล มอดของเราแก้เฉพาะไฟล์ใน `Package`
+  บน Steam / Epic ม็อดจึงแก้เฉพาะไฟล์ใน `Package`
+- **ตัวติดตั้งของเกมเอง (standalone, beta):** ไฟล์ภาษาไทยทั้งหมดอยู่ใน `LocalData/Patch`
+  (ไฟล์หลักตัวเดียวกับ Package ของ Steam + `_diff` ตัวเดียวกับ LocalData ของ Steam)
+  - build: `build_mod.bat` สร้าง `work/build/sa_translate_words_map_th_diff` จาก `backup/original/LocalData`
+    แล้ว `make_release.py` ใส่ค่า `sa_orig_*` / `sa_mod_*` ใน manifest
+  - ทดสอบแล้ว (2026-11-17): ถ้าไฟล์ม็อดเป็น **read-only** patcher จะโหลดไฟล์ใหม่เป็น `.tmp`
+    แทนที่ไม่ได้ แล้วข้ามไปเงียบ ๆ (ไม่ error) ม็อดจึงอยู่รอด
+  - ตอนเกมอัปเดต: `play.bat` เห็น `LocalData/Patch/patching_version.txt` เปลี่ยน
+    -> คืนต้นฉบับ (ปลด read-only) ให้ patcher อัปเดตไฟล์ภาษา -> รอบถัดไปติดตั้งม็อดใหม่
+  - ภาษาของหน้าต่าง launcher กับภาษาเกมแยกกัน (`LocalData/patch_conf.json`: `launcher_language` / `language`, `lang_types`)
 
 ### 2.4 รหัสพิเศษในข้อความ
 

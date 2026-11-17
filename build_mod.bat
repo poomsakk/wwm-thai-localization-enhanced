@@ -47,6 +47,11 @@ for %%F in (translate_words_map_th translate_words_map_th_diff) do (
         python -I tools\wwmloc.py verify "work\build\%%F" || goto :err
     )
 )
+REM Standalone (the game's own launcher) keeps its _diff in LocalData\Patch: build that variant too.
+if exist "backup\original\LocalData\translate_words_map_th_diff" (
+    python -I tools\wwmloc.py patch "backup\original\LocalData\translate_words_map_th_diff" work\build_patch.tsv "work\build\sa_translate_words_map_th_diff" || goto :err
+    python -I tools\wwmloc.py verify "work\build\sa_translate_words_map_th_diff" || goto :err
+)
 
 echo.
 if /i "%~1"=="nocopy" (

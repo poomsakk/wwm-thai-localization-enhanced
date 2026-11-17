@@ -3,7 +3,7 @@
 
 แปลภาษาไทยใหม่ทั้งเกมจากต้นฉบับภาษาจีน (ม็อดแฟนเมด ไม่ใช่ของทางการ)
 
-รองรับ: Steam / Epic Games / ตัวติดตั้งของเกมเอง (launcher.exe)
+รองรับ: Steam / Epic Games / ตัวติดตั้งของเกมเอง (launcher.exe, แบบทดลอง beta)
 มี 2 วิธีให้เลือก
   ก. ติดตั้งด้วย install.bat (แนะนำ) - เช็กเวอร์ชันเกม สำรองไฟล์ และอัปเดตม็อดให้เอง
   ข. ติดตั้งด้วยมือ - ก๊อปไฟล์เอง ไม่รันสคริปต์ใด ๆ แต่ต้องดูแลเองทุกอย่าง
@@ -54,14 +54,26 @@ Epic ไม่มีช่อง Launch Options install.bat จึงสร้�
 
 ขั้นที่ 2: ตัวติดตั้งของเกมเอง (launcher.exe / wwm_standard / wwm_lite)
 ----------------------------------------------------------------------
-เหมือน Epic: install.bat สร้าง shortcut ให้
-1. เปิดเกมจาก shortcut "Where Winds Meet (Thai)" บน Desktop
-   (มันจะเช็ก/ซ่อมคำแปลก่อน แล้วเปิด launcher.exe ของเกมให้)
-2. ถ้าเปิดจาก launcher.exe ตรง ๆ ก็เล่นได้ แต่รอบนั้นม็อดจะไม่ได้เช็กอัปเดต
+รองรับแบบทดลอง (beta) - แนะนำ Steam / Epic ถ้าเลือกได้
 
-หมายเหตุ: แบบนี้ยังมีคนทดสอบกับเกมจริงน้อย ถ้า install.bat บอกว่า
-"ไม่ตรงกับม็อดชุดนี้" หรือเข้าเกมแล้วไม่เป็นคำแปลใหม่ ช่วยส่งไฟล์
-%LOCALAPPDATA%\WWM-Thai\log.txt มาให้ผู้ทำม็อดดูด้วย
+launcher ของเกมคอยเขียนไฟล์ภาษากลับเป็นของเดิมทุกครั้งที่เปิด
+ม็อดจึงตั้งไฟล์ภาษาของม็อดเป็น "read-only" (อ่านอย่างเดียว) เพื่อไม่ให้ถูกเขียนทับ
+
+1. เปิดเกมจาก shortcut "Where Winds Meet (Thai)" บน Desktop เสมอ
+   (มันจะเช็ก/ซ่อมคำแปลก่อน แล้วเปิด launcher ของเกม (Win32\deploy\launcher.exe) ให้)
+2. ถ้าเปิดจาก launcher ตรง ๆ ก็เล่นได้ แต่รอบนั้นม็อดจะไม่ได้เช็กอัปเดต
+
+เมื่อเกมอัปเดต (สำคัญ):
+  - รอบแรกหลังเกมอัปเดต ไฟล์ภาษาจะยังเป็นของเก่า (launcher เขียนทับไฟล์ read-only ไม่ได้)
+    ข้อความใหม่ที่มากับอัปเดตอาจหายหรือแสดงผิดในรอบนั้น
+  - เปิดเกมผ่าน shortcut ครั้งถัดไป ม็อดจะเห็นว่าเกมอัปเดตแล้ว คืนไฟล์ต้นฉบับ
+    ให้ launcher อัปเดตไฟล์ภาษาได้ (รอบนั้นเป็นภาษาไทยเดิมของเกม)
+  - รอบถัดจากนั้น ม็อดจะกลับมาเอง (หรือเมื่อม็อดเวอร์ชันที่ตรงกับเกมใหม่ออก)
+  - ถ้าเห็นข้อความแปลก ๆ หลังเกมอัปเดต: ปิดเกม แล้วเปิดผ่าน shortcut ใหม่
+    หรือรัน uninstall.bat แล้วค่อย install.bat ใหม่ทีหลัง
+
+ถ้า install.bat บอกว่า "ไม่ตรงกับม็อดชุดนี้" หรือเข้าเกมแล้วไม่เป็นคำแปลใหม่
+ช่วยส่งไฟล์ %LOCALAPPDATA%\WWM-Thai\log.txt มาให้ผู้ทำม็อดดูด้วย
 
 ถอนการติดตั้ง: ดับเบิลคลิก %LOCALAPPDATA%\WWM-Thai\uninstall.bat
               (shortcut บน Desktop ถูกลบให้เอง)
@@ -114,18 +126,22 @@ Epic ไม่มีช่อง Launch Options install.bat จึงสร้�
        - พิมพ์ทีละบรรทัด
            certutil -hashfile translate_words_map_th SHA256
            certutil -hashfile translate_words_map_th_diff SHA256
-       - ผลของแต่ละไฟล์ต้องตรงกับบรรทัด
-           orig_translate_words_map_th=...
-           orig_translate_words_map_th_diff=...
-         ใน data\manifest.txt (ไม่สนตัวพิมพ์เล็ก/ใหญ่)
+       - ผลของแต่ละไฟล์ต้องตรงกับบรรทัดใน data\manifest.txt (ไม่สนตัวพิมพ์เล็ก/ใหญ่)
+           Steam / Epic      : orig_translate_words_map_th=...    orig_translate_words_map_th_diff=...
+           ตัวติดตั้งของเกม  : sa_orig_translate_words_map_th=... sa_orig_translate_words_map_th_diff=...
        - ถ้าไฟล์ไหนไม่ตรง: หยุด ห้ามก๊อป
-         (ถ้าตรงกับ mod_... แทน แปลว่าลงม็อดเวอร์ชันนี้ไว้แล้ว ไม่ต้องทำอะไร)
+         (ถ้าตรงกับ mod_... / sa_mod_... แทน แปลว่าลงม็อดเวอร์ชันนี้ไว้แล้ว ไม่ต้องทำอะไร)
 
 4. สำรองไฟล์ 2 ไฟล์นี้ไปเก็บไว้ที่อื่น
      translate_words_map_th
      translate_words_map_th_diff
 
-5. ก๊อปไฟล์ 2 ไฟล์ชื่อเดียวกันจาก data ของ zip ไปวางทับ
+5. ก๊อปไฟล์จาก data ของ zip ไปวางทับ
+   Steam / Epic     : translate_words_map_th และ translate_words_map_th_diff
+   ตัวติดตั้งของเกม : translate_words_map_th และ sa_translate_words_map_th_diff
+                      (เปลี่ยนชื่อตัวหลังเป็น translate_words_map_th_diff หลังวาง)
+                      แล้วคลิกขวาทั้ง 2 ไฟล์ > Properties > ติ๊ก Read-only > OK
+                      (ไม่ติ๊ก launcher จะเขียนกลับเป็นภาษาไทยเดิมตอนเปิดเกม)
 
 6. เข้าเกม ตั้งภาษาเป็นภาษาไทย แล้วเปิดแผนที่ ชื่อภูเขา 不见山 ต้องเป็น "เขาปู้เจี้ยน"
 
@@ -133,6 +149,7 @@ Epic ไม่มีช่อง Launch Options install.bat จึงสร้�
   ให้รอม็อดเวอร์ชันใหม่ แล้วทำข้อ 1-6 ใหม่ (อย่าก๊อปไฟล์ม็อดเก่าทับเกมใหม่)
 
 ถอนการติดตั้ง: ก๊อปไฟล์ที่สำรองไว้กลับไปวาง หรือใช้ปุ่มซ่อมไฟล์เกม
+  (ตัวติดตั้งของเกม: เอาติ๊ก Read-only ของ 2 ไฟล์ออกก่อน)
   Steam : คลิกขวาที่เกม > Properties > Installed Files > Verify integrity of game files
   Epic  : Library > ... ที่เกม > Manage > Verify
   ตัวติดตั้งของเกม : ปุ่มตรวจสอบ/ซ่อมไฟล์ใน launcher
@@ -145,6 +162,7 @@ Epic ไม่มีช่อง Launch Options install.bat จึงสร้�
     Package\HD\oversea\locale             (Steam / Epic)
     LocalData\Patch\HD\oversea\locale     (ตัวติดตั้งของเกม)
   install.bat สำรองต้นฉบับไว้ที่ %LOCALAPPDATA%\WWM-Thai\backup ก่อนเสมอ
+- ตัวติดตั้งของเกม: ตั้ง 2 ไฟล์นั้นเป็น read-only (uninstall.bat เอาออกให้)
 - Epic / ตัวติดตั้งของเกม: สร้าง shortcut "Where Winds Meet (Thai)" บน Desktop
 - ไม่ต้องใช้สิทธิ์ admin ไม่ลงโปรแกรมใด ๆ
 - ต่ออินเทอร์เน็ตเฉพาะตอนเช็กอัปเดต ไปที่ GitHub ของโปรเจกต์นี้เท่านั้น

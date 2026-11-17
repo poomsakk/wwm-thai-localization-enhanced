@@ -6,7 +6,7 @@
 
 ## สำหรับผู้เล่น
 
-รองรับ **Steam**, **Epic Games** และ**ตัวติดตั้งของเกมเอง** (launcher.exe)
+รองรับ **Steam**, **Epic Games** และ**ตัวติดตั้งของเกมเอง** (launcher.exe, แบบทดลอง beta)
 
 1. โหลด `WWM-Thai-<เวอร์ชัน>.zip` ล่าสุดจากหน้า [Releases](https://github.com/poomsakk/wwm-thai-localization-enhanced/releases/latest)
 2. แตกไฟล์ zip → ปิดเกม → ดับเบิลคลิก `install.bat`
@@ -52,7 +52,7 @@ git clone https://github.com/poomsakk/wwm-thai-localization-enhanced.git
 | เกมอัปเดต | `update_game.bat` → แปลข้อความใหม่ (`translate.py chunks --new`) → `build_mod.bat` |
 | เพิ่ม/แก้ชื่อเฉพาะ | แก้ `glossary/series_names.tsv` → `python -I tools/name_pass.py --apply` → `build_mod.bat` |
 | แจกงานให้ subagent หลายตัว | `python -I tools/next_chunk.py [ก้อนที่เสร็จ]` (ดู docs/AGENT_CHUNK_TASK.md) |
-| ออก release | `build_mod.bat` → `python -I tools/make_release.py` → อัปโหลด `dist/<version>/*.zip` และ `manifest.txt` ขึ้น GitHub Release |
+| ออก release | `build_mod.bat` → `python -I tools/make_release.py --version <ver>` (ไม่มีเกม Steam ในเครื่อง: เพิ่ม `--game <โฟลเดอร์เกม>` เช่น `D:\wwm\wwm_lite`) → อัปโหลด `dist/<version>/*.zip` และ `manifest.txt` ขึ้น GitHub Release |
 | เก็บงานขึ้น GitHub | `git add -A` → `git commit -m "..."` → `git push` |
 
 ### ส่งคำแปลมาช่วย (contributor)
