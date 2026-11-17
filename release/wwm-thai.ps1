@@ -381,6 +381,7 @@ function Main-Install {
     $platform = Get-Platform $game
     Say "พบเกมที่: $game  ($platform)"
     Say "ม็อดเวอร์ชัน: $($kitMan['mod_version'])  (สร้างสำหรับเกมเวอร์ชัน $($kitMan['game_build']))"
+    Write-Diagnostics $game $kitMan
 
     $oldMan = Read-KV (Join-Path $DataDir 'manifest.txt')
     $orig = Get-GameOrig $game $oldMan
@@ -426,9 +427,26 @@ function Main-Play {
     Update-Mod $game
 }
 
+# บันทึกข้อมูลสำหรับแก้ปัญหาลง log.txt (แพลตฟอร์ม, ที่อยู่ไฟล์, เวอร์ชันเกม, SHA256 เทียบกับ manifest)
+function Write-Diagnostics([string]$game, [hashtable]$man) {
+    try {
+        $bv = Join-Path $game 'Engine\Binaries\Win64r\Built.version'
+        $ver = if (Test-Path -LiteralPath $bv) { (Get-Content -LiteralPath $bv -Raw).Trim() } else { '?' }
+        Log "diag: platform=$(Get-Platform $game) game=$game locale=$(Get-LocaleDir $game) built=$ver mod=$($man['mod_version']) mod_built=$($man['game_build'])"
+        foreach ($f in $Files) {
+            $h = Hash (GameFile $game $f)
+            $what = if (-not $h) { 'MISSING' } elseif ($h -eq $man["orig_$f"]) { 'orig (ok)' } elseif ($h -eq $man["mod_$f"]) { 'mod' } else { 'OTHER' }
+            Log "diag: $f sha256=$h -> $what"
+        }
+        $l = @((Join-Path (Split-Path $game) 'launcher.exe'), (Join-Path $game 'launcher.exe')) | Where-Object { Test-Path -LiteralPath $_ }
+        if ($l) { Log "diag: launcher=$($l -join ', ')" }
+    } catch { Log "diag failed: $($_.Exception.Message)" }
+}
+
 function Update-Mod([string]$game) {
     $st = Read-KV $StateFile; $st['game_path'] = $game
     $man = Read-KV (Join-Path $DataDir 'manifest.txt')
+    if ($man['mod_version']) { Write-Diagnostics $game $man }
     if (-not $man['mod_version']) { Say 'ยังไม่ได้ติดตั้งม็อด (รัน install.bat ก่อน): เปิดเกมตามปกติ' 'Yellow'; return }
     $orig = Get-GameOrig $game $man
     $compatible = Test-Compatible $orig $man
