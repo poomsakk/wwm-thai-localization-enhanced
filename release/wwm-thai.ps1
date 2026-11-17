@@ -385,25 +385,55 @@ function Main-Install {
 
     $oldMan = Read-KV (Join-Path $DataDir 'manifest.txt')
     $orig = Get-GameOrig $game $oldMan
-    if (-not (Test-Compatible $orig $kitMan)) {
-        Say 'ตรวจเวอร์ชันเกม...  ไม่ตรงกับม็อดชุดนี้ (เกมอาจอัปเดตแล้ว)' 'Red'
-        Say 'ไม่ได้แก้ไขไฟล์ใด ๆ: โหลดม็อดเวอร์ชันล่าสุดมาติดตั้งแทน' 'Yellow'
-        $script:ExitCode = 1; return
-    }
-    Say 'ตรวจเวอร์ชันเกม...  ตรงกับม็อด' 'Green'
+    $kitOk = Test-Compatible $orig $kitMan
+    $oldOk = [bool]$oldMan['mod_version'] -and (Test-Compatible $orig $oldMan)
 
-    # คัดลอกชุดม็อดไปเก็บไว้ที่ %LOCALAPPDATA%\WWM-Thai (ลบโฟลเดอร์ที่แตก zip ทิ้งได้หลังติดตั้ง)
-    $same = (Resolve-Path -LiteralPath $src).Path.TrimEnd('\') -eq (Resolve-Path -LiteralPath $ModHome).Path.TrimEnd('\')
-    if (-not $same) {
-        foreach ($n in 'wwm-thai.ps1', 'play.bat', 'uninstall.bat', 'README.txt') {
-            $p = Join-Path $src $n
-            if (Test-Path -LiteralPath $p) { Copy-Item -LiteralPath $p -Destination $ModHome -Force }
+    # เลือกชุดข้อมูลที่ใหม่สุดที่เข้ากับเกม: release บน GitHub > ที่ติดตั้งไว้แล้ว > ใน zip
+    # (รัน install.bat ทับของเดิมได้เสมอ = อัปเดตด้วยมือได้ และไม่ถอยเวอร์ชันลง)
+    $best = $null; $bestVer = [version]'0.0'
+    if ($kitOk) { $best = Join-Path $src 'data'; $bestVer = [version]$kitMan['mod_version'] }
+    if ($oldOk -and [version]$oldMan['mod_version'] -gt $bestVer) { $best = $DataDir; $bestVer = [version]$oldMan['mod_version'] }
+    $tmp = Join-Path $env:TEMP ('wwmthai_' + [guid]::NewGuid().ToString('N'))
+    try {
+        if ($Repo) {
+            Say 'เช็กเวอร์ชันล่าสุดบน GitHub...' 'Cyan'
+            try {
+                $u = Find-Update $orig $bestVer
+                if ($u) {
+                    New-Item -ItemType Directory -Path $tmp | Out-Null
+                    $best = Get-Update $u $tmp; $bestVer = $u.Version
+                    Say "พบม็อดเวอร์ชันใหม่กว่า: $bestVer (ใช้ตัวนี้แทนของใน zip)" 'Green'
+                } else { if ($best) { Say "ไม่มีเวอร์ชันใหม่กว่า $bestVer" }; Log 'install: no newer release' }
+                $st = Read-KV $StateFile; $st['last_check'] = (Get-Date).ToString('s'); Write-KV $StateFile $st
+            } catch {
+                Say "เช็กอัปเดตไม่สำเร็จ (ใช้ของใน zip แทน): $($_.Exception.Message)" 'Yellow'
+                Log ($_ | Out-String)
+            }
         }
-        $man = Use-Kit $game $oldMan (Join-Path $src 'data')
+        if (-not $best) {
+            Say 'ตรวจเวอร์ชันเกม...  ไม่ตรงกับม็อดชุดนี้ (เกมอาจอัปเดตแล้ว)' 'Red'
+            Say 'และยังไม่พบม็อดเวอร์ชันที่ตรงกับเกมบน GitHub: ไม่ได้แก้ไขไฟล์ใด ๆ รอม็อดเวอร์ชันใหม่ก่อน' 'Red'
+            $script:ExitCode = 1; return
+        }
+        Say "ตรวจเวอร์ชันเกม...  ตรงกับม็อด $bestVer" 'Green'
+
+        # คัดลอกสคริปต์ไปเก็บไว้ที่ %LOCALAPPDATA%\WWM-Thai (ลบโฟลเดอร์ที่แตก zip ทิ้งได้หลังติดตั้ง)
+        $same = (Resolve-Path -LiteralPath $src).Path.TrimEnd('\') -eq (Resolve-Path -LiteralPath $ModHome).Path.TrimEnd('\')
+        if (-not $same) {
+            foreach ($n in 'wwm-thai.ps1', 'play.bat', 'uninstall.bat', 'README.txt') {
+                $p = Join-Path $src $n
+                if (Test-Path -LiteralPath $p) { Copy-Item -LiteralPath $p -Destination $ModHome -Force }
+            }
+        }
+        if ($best -eq $DataDir) {
+            Install-Data $game $oldMan $DataDir   # ของที่ติดตั้งไว้ใหม่สุดอยู่แล้ว: แค่ซ่อมให้ครบ
+            $man = $oldMan
+        } else {
+            $man = Use-Kit $game $oldMan $best
+        }
         Get-ChildItem -LiteralPath $ModHome -Recurse -File | Unblock-File
-    } else {
-        Install-Data $game $kitMan $DataDir
-        $man = $kitMan
+    } finally {
+        Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
     }
     $st = Read-KV $StateFile; $st['game_path'] = $game; Write-KV $StateFile $st
     Say "สำรองไฟล์ต้นฉบับไว้ที่: $BackupDir"
