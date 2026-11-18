@@ -92,6 +92,9 @@ git clone https://github.com/poomsakk/wwm-thai-localization-enhanced.git
   - ตั้งไฟล์ม็อดเป็น read-only เพราะ patcher ของเกมคอยเขียนคืน
   - เมื่อ `LocalData\Patch\patching_version.txt` เปลี่ยน play.bat จะคืนต้นฉบับให้เกมอัปเดตไฟล์ภาษาก่อน แล้วติดตั้งม็อดกลับในรอบถัดไป
   - รายละเอียดการทดสอบอยู่ใน [docs/OVERVIEW.md](docs/OVERVIEW.md)
+  - **ทดสอบแล้วเฉพาะแบบ Lite (`wwm_lite`)** แบบ Standard (`wwm_standard`) ยังไม่เคยเห็นไฟล์จริง
+    ถ้า Standard มีไฟล์ภาษาทั้งใน `Package\...` และ `LocalData\Patch\...` สคริปต์จะเลือก `Package` ก่อน
+    (ลำดับใน `$LocaleRels`) ซึ่งอาจไม่ใช่ไฟล์ที่เกมอ่านจริง ต้องเช็กกับเกมจริงก่อนเคลมว่ารองรับ
 
 ทดสอบโดยไม่แตะเกมจริงได้ด้วยตัวแปรสภาพแวดล้อม:
 

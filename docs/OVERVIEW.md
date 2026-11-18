@@ -69,8 +69,10 @@ Text block (หลัง zstd decompress) = hash table แบบ open addressing
   `build_mod.bat` จึงแพตช์ทั้งสองไฟล์
 - **ไฟล์ใน `LocalData/Patch`:** ตัว patcher ของเกมจะ **เขียนทับคืนเป็นของเดิม** ทุกครั้งที่เปิดเกม
   บน Steam ม็อดจึงแก้เฉพาะไฟล์ใน `Package`
-- **ตัวติดตั้งของเกมเอง (standalone, beta):** ไฟล์ภาษาไทยทั้งหมดอยู่ใน `LocalData/Patch`
-  (ไฟล์หลักตัวเดียวกับ Package ของ Steam + `_diff` ตัวเดียวกับ LocalData ของ Steam)
+- **ตัวติดตั้งของเกมเอง (standalone, beta):** ข้อมูลข้างล่างมาจากแบบ **Lite** (`wwm_lite`) เท่านั้น
+  แบบ **Standard** (`wwm_standard`) ยังไม่ได้ทดสอบ ไม่รู้ว่าไฟล์ภาษาอยู่ที่ไหน
+  - Lite: ไฟล์ภาษาไทยทั้งหมดอยู่ใน `LocalData/Patch` (`Package/HD/oversea/locale` ไม่มีไฟล์ภาษา)
+    (ไฟล์หลักตัวเดียวกับ Package ของ Steam + `_diff` ตัวเดียวกับ LocalData ของ Steam)
   - build: `build_mod.bat` สร้าง `work/build/sa_translate_words_map_th_diff` จาก `backup/original/LocalData`
     แล้ว `make_release.py` ใส่ค่า `sa_orig_*` / `sa_mod_*` ใน manifest
   - ทดสอบแล้ว (2026-11-17): ถ้าไฟล์ม็อดเป็น **read-only** patcher จะโหลดไฟล์ใหม่เป็น `.tmp`

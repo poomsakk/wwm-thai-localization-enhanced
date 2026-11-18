@@ -12,7 +12,8 @@
    | แพลตฟอร์ม | โฟลเดอร์ | หาโฟลเดอร์เกมยังไง |
    |---|---|---|
    | Steam | `<คลังเกม Steam>\steamapps\common\Where Winds Meet\Package\HD\oversea\locale` | Steam > คลิกขวาที่เกม > Manage > Browse local files |
-   | Launcher | `<...>\wwm\wwm_standard\LocalData\Patch\HD\oversea\locale` (หรือ `wwm_lite`) | |
+   | Launcher แบบ Lite | `<...>\wwm\wwm_lite\LocalData\Patch\HD\oversea\locale` | |
+   | Launcher แบบ Standard ⚠️ | ยังไม่ได้ทดสอบ ไม่รู้ว่าไฟล์ภาษาอยู่ที่ไหนบ้าง (อาจอยู่ทั้งใน `Package\...` และ `LocalData\Patch\...`) | `<...>\wwm\wwm_standard` |
 
 3. **เช็กว่าไฟล์ในเกมตรงกับม็อดเวอร์ชันนี้** (สำคัญที่สุด ห้ามข้าม)
    ไฟล์ม็อดที่ไม่ตรงกับไฟล์ในเกม จะทำให้ข้อความในเกมเพี้ยน
