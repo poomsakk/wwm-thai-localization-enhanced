@@ -6,7 +6,8 @@ rem  Steam : Steam > right-click the game > Properties > General > Launch Option
 rem              "<folder of this file>\play.bat" %command%
 rem          Steam then runs this file with the game command (%*).
 rem  The game's own launcher : open the game with the desktop shortcut
-rem          "Where Winds Meet (Thai)" made by install.bat (runs this file with no arguments).
+rem          "Where Winds Meet (Thai)" made by install.bat (runs this file with
+rem          --game "<game folder>", so Steam + launcher installs on one PC both work).
 rem
 rem  1) wwm-thai.ps1 checks the Thai files: reinstalls them if they were
 rem     overwritten, and checks GitHub for a newer mod version.
@@ -19,6 +20,10 @@ setlocal
 chcp 65001 >nul
 if "%~1"=="" (
     powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0wwm-thai.ps1" -Mode play
+    exit /b
+)
+if /i "%~1"=="--game" (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0wwm-thai.ps1" -Mode play -Game "%~2"
     exit /b
 )
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0wwm-thai.ps1" -Mode play -GameExe "%~1"

@@ -11,7 +11,8 @@
 #  และตั้งไฟล์ม็อดเป็น read-only เพราะ launcher คอยเขียนไฟล์ในโฟลเดอร์นั้นคืน
 #
 #  กติกาความปลอดภัย:
-#   - ก่อนแก้ไฟล์ จะสำรองต้นฉบับไว้ที่ %LOCALAPPDATA%\WWM-Thai\backup เสมอ
+#   - ก่อนแก้ไฟล์ จะสำรองต้นฉบับไว้ที่ %LOCALAPPDATA%\WWM-Thai\games\<เกม>\backup เสมอ
+#   - มีหลายเกมในเครื่อง (เช่น Steam + Launcher) ได้: แต่ละเกมมีข้อมูล/ไฟล์สำรองของตัวเอง
 #   - จะวางไฟล์ม็อดก็ต่อเมื่อไฟล์ในเกมตรงกับเวอร์ชันที่ม็อดสร้างมา (เช็ก SHA256)
 #     ถ้าเกมอัปเดตแล้วไม่ตรง จะไม่แตะอะไรเลย (กันข้อความในเกมเพี้ยน)
 #   - อัปเดตอัตโนมัติจะโหลดจาก GitHub Releases ของ $Repo เท่านั้น
@@ -19,7 +20,8 @@
 # =====================================================================
 param(
     [Parameter(Mandatory = $true)][ValidateSet('install', 'play', 'uninstall')][string]$Mode,
-    [string]$GameExe = ''
+    [string]$GameExe = '',
+    [string]$Game = ''
 )
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [Text.Encoding]::UTF8 } catch {}
@@ -33,10 +35,13 @@ $SteamAppId      = '3564740'
 $ShortcutName    = 'Where Winds Meet (Thai).lnk'   # WScript.Shell บันทึกชื่อไฟล์ภาษาไทยไม่ได้
 
 $ModHome   = if ($env:WWMTHAI_HOME) { $env:WWMTHAI_HOME } else { Join-Path $env:LOCALAPPDATA 'WWM-Thai' }
+$LogFile   = Join-Path $ModHome 'log.txt'
+$GamesDir  = Join-Path $ModHome 'games'   # ข้อมูลแยกต่อเกม: games\<เกม>\data (คำแปล), backup (ต้นฉบับ), state.txt
+# ค่าด้านล่างถูกตั้งใหม่ด้วย Set-Game ทุกครั้งก่อนทำงานกับเกมไหน
 $DataDir   = Join-Path $ModHome 'data'
 $BackupDir = Join-Path $ModHome 'backup'
 $StateFile = Join-Path $ModHome 'state.txt'
-$LogFile   = Join-Path $ModHome 'log.txt'
+$script:ProfileDir = $ModHome
 New-Item -ItemType Directory -Force -Path $ModHome | Out-Null
 $script:ExitCode = 0
 
@@ -121,6 +126,56 @@ function Get-PatchVer([string]$game) {
     if (Test-Path -LiteralPath $p) { return ([string](Get-Content -LiteralPath $p -Raw)).Trim() } else { return '' }
 }
 
+# ---------------- หลายเกมในเครื่องเดียว ----------------
+function Norm-Path([string]$p) {
+    if (-not $p) { return '' }
+    $p = $p.Trim().Trim('"')
+    try { $p = [IO.Path]::GetFullPath($p) } catch {}
+    return $p.TrimEnd('\')
+}
+# ชื่อโฟลเดอร์ข้อมูลของเกม เช่น steam-1a2b3c4d, wwm_lite-5e6f7a8b (จากที่อยู่เกม)
+function Get-GameKey([string]$game) {
+    $p = (Norm-Path $game).ToLower()
+    $sha = [Security.Cryptography.SHA1]::Create()
+    $h = -join ($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($p))[0..3] | ForEach-Object { $_.ToString('x2') })
+    $leaf = Split-Path $p -Leaf
+    $kind = if ($p -match '\\steamapps\\common\\') { 'steam' } elseif ($leaf -match '^wwm_(standard|lite)$') { $leaf } else { 'game' }
+    return "$kind-$h"
+}
+# ตั้งที่เก็บข้อมูล (data / backup / state.txt) ให้เป็นของเกมนี้
+function Set-Game([string]$game) {
+    $script:ProfileDir = Join-Path $GamesDir (Get-GameKey $game)
+    $script:DataDir    = Join-Path $script:ProfileDir 'data'
+    $script:BackupDir  = Join-Path $script:ProfileDir 'backup'
+    $script:StateFile  = Join-Path $script:ProfileDir 'state.txt'
+    Set-Variant $game
+}
+# เกมที่ลงม็อดไว้ (มีโฟลเดอร์ข้อมูลใน games\)
+function Get-ModGames {
+    if (-not (Test-Path -LiteralPath $GamesDir)) { return }
+    foreach ($d in Get-ChildItem -LiteralPath $GamesDir -Directory) {
+        $g = (Read-KV (Join-Path $d.FullName 'state.txt'))['game_path']
+        if ($g) { Norm-Path $g }
+    }
+}
+# ม็อดเวอร์ชันก่อน ๆ เก็บ data / backup / state.txt ไว้ชุดเดียว: ย้ายไปเป็นของเกมที่ลงไว้
+function Move-Legacy {
+    $old = Join-Path $ModHome 'state.txt'
+    $names = @('data', 'backup', 'state.txt') | Where-Object { Test-Path -LiteralPath (Join-Path $ModHome $_) }
+    if (-not $names) { return }
+    $g = (Read-KV $old)['game_path']
+    if (-not $g) { Log 'legacy data without game_path: left as is'; return }
+    $d = Join-Path $GamesDir (Get-GameKey $g)
+    if (Test-Path -LiteralPath (Join-Path $d 'state.txt')) { Log "legacy data: $d already exists, left as is"; return }
+    New-Item -ItemType Directory -Force -Path $d | Out-Null
+    foreach ($n in $names) { Move-Item -LiteralPath (Join-Path $ModHome $n) -Destination (Join-Path $d $n) -Force }
+    Log "moved legacy data ($($names -join ', ')) to $d"
+}
+function Ask([string]$prompt) {
+    if ($env:WWMTHAI_ANSWER) { Say "$prompt $env:WWMTHAI_ANSWER"; return $env:WWMTHAI_ANSWER }   # สำหรับทดสอบ
+    return Read-Host $prompt
+}
+
 # ---------------- หาโฟลเดอร์เกม (Steam / ตัวติดตั้งของเกม) ----------------
 # แปลงสิ่งที่ผู้ใช้ให้มา (โฟลเดอร์เกม, wwm.exe, launcher.exe หรือโฟลเดอร์ wwm ที่มี wwm_standard) เป็นโฟลเดอร์เกม
 function Resolve-GameDir([string]$p) {
@@ -131,7 +186,7 @@ function Resolve-GameDir([string]$p) {
         else { $p = Split-Path $p }   # เช่น launcher.exe ของตัวติดตั้งเกม
     }
     foreach ($c in @($p, (Join-Path $p 'wwm_standard'), (Join-Path $p 'wwm_lite'))) {
-        if (Test-Game $c) { return $c }
+        if (Test-Game $c) { return (Norm-Path $c) }
     }
     return $null
 }
@@ -169,7 +224,9 @@ function Get-StandaloneGames {
 }
 function Find-AllGames {
     $seen = @{}
-    foreach ($g in @(Get-SteamGames) + @(Get-StandaloneGames)) {
+    $found = @(if ($env:WWMTHAI_GAME) { $env:WWMTHAI_GAME -split ';' | ForEach-Object { Resolve-GameDir $_ } }   # สำหรับทดสอบ
+               else { Get-SteamGames; Get-StandaloneGames })
+    foreach ($g in $found + @(Get-ModGames | Where-Object { Test-Game $_ })) {
         if ($g -and -not $seen.ContainsKey($g.ToLower())) { $seen[$g.ToLower()] = $true; $g }
     }
 }
@@ -178,27 +235,44 @@ function Get-Platform([string]$game) {
     if ((Split-Path $game -Leaf) -match '^wwm_(standard|lite)$' -or (Get-LocaleDir $game) -like '*\LocalData\*') { return 'standalone' }
     return 'other'
 }
-function Find-Game([switch]$Ask) {
-    if ($env:WWMTHAI_GAME) { return (Resolve-GameDir $env:WWMTHAI_GAME) }   # สำหรับทดสอบ
-    $st = Read-KV $StateFile
-    if (Test-Game $st['game_path']) { return $st['game_path'] }
-    $all = @(Find-AllGames)
+# เลือกเกมที่จะติดตั้ง (หรือถอนการติดตั้งถ้า -Installed): คืนรายการโฟลเดอร์เกม (ว่าง = ยกเลิก)
+function Select-Games([switch]$Installed) {
+    $all = @(if ($Installed) { Get-ModGames } else { Find-AllGames })
     if ($all.Count -eq 1) { return $all[0] }
-    if (-not $Ask) { if ($all.Count) { return $all[0] } else { return $null } }
     if ($all.Count -gt 1) {
+        $mod = @(Get-ModGames)
         Say 'พบเกมมากกว่าหนึ่งที่:' 'Yellow'
-        for ($i = 0; $i -lt $all.Count; $i++) { Say ("  [{0}] {1}  ({2})" -f ($i + 1), $all[$i], (Get-Platform $all[$i])) }
-        $n = Read-Host 'เลือกหมายเลข'
-        if ($n -match '^\d+$' -and [int]$n -ge 1 -and [int]$n -le $all.Count) { return $all[[int]$n - 1] }
+        for ($i = 0; $i -lt $all.Count; $i++) {
+            $tag = if (-not $Installed -and $mod -contains $all[$i]) { '  - ลงม็อดไว้แล้ว' } else { '' }
+            Say ("  [{0}] {1}  ({2}){3}" -f ($i + 1), $all[$i], (Get-Platform $all[$i]), $tag)
+        }
+        Say '  [A] ทุกเกมข้างบน'
+        while ($true) {
+            $n = ([string](Ask 'เลือกหมายเลข หรือ A (กด Enter เปล่า ๆ = ยกเลิก)')).Trim()
+            if (-not $n) { return }
+            if ($n -ieq 'a') { return $all }
+            if ($n -match '^\d+$' -and [int]$n -ge 1 -and [int]$n -le $all.Count) { return $all[[int]$n - 1] }
+            Say 'ไม่มีหมายเลขนี้' 'Red'
+            if ($env:WWMTHAI_ANSWER) { return }
+        }
     }
+    if ($Installed) { return }
     while ($true) {
         Say 'หาโฟลเดอร์เกมไม่เจอ: ลากโฟลเดอร์เกม (หรือไฟล์ wwm.exe / launcher.exe) มาวางในหน้าต่างนี้ แล้วกด Enter (กด Enter เปล่า ๆ = ยกเลิก)' 'Yellow'
         $p = Read-Host 'โฟลเดอร์เกม'
-        if (-not $p.Trim()) { return $null }
+        if (-not $p.Trim()) { return }
         $g = Resolve-GameDir $p
         if ($g) { return $g }
         Say "ไม่พบไฟล์ภาษาของเกมใน: $p" 'Red'
     }
+}
+# เกมของ shortcut ที่ไม่ได้ระบุเกม (shortcut จากม็อดเวอร์ชันก่อน): เกมที่ลงม็อดไว้ เน้น Launcher ก่อน
+function Find-PlayGame {
+    $mod = @(Get-ModGames | Where-Object { Test-Game $_ })
+    $sa = @($mod | Where-Object { (Get-Platform $_) -ne 'steam' })
+    if ($sa.Count) { return $sa[0] }
+    if ($mod.Count) { return $mod[0] }
+    return @(Find-AllGames)[0]
 }
 
 # ---------------- เปิดเกม (สำหรับ shortcut ของตัวติดตั้งเกม) ----------------
@@ -216,15 +290,35 @@ function Start-Game([string]$game) {
     if ($env:WWMTHAI_NOLAUNCH) { Say "(ทดสอบ) จะเปิด: $target"; return }
     Start-Process -FilePath $target
 }
-function Get-ShortcutPath {
-    $desk = if ($env:WWMTHAI_DESKTOP) { $env:WWMTHAI_DESKTOP } else { [Environment]::GetFolderPath('Desktop') }   # override สำหรับทดสอบ
-    return Join-Path $desk $ShortcutName
+function Get-Desktop {
+    if ($env:WWMTHAI_DESKTOP) { return $env:WWMTHAI_DESKTOP }   # override สำหรับทดสอบ
+    return [Environment]::GetFolderPath('Desktop')
 }
-function New-PlayShortcut {
-    $lnk = Get-ShortcutPath
+# shortcut ของม็อดบน Desktop: @{ Path; Game } (Game ว่าง = shortcut จากม็อดเวอร์ชันก่อน ไม่ได้ระบุเกม)
+function Get-PlayShortcuts {
+    $desk = Get-Desktop
+    if (-not (Test-Path -LiteralPath $desk)) { return }
+    $ws = New-Object -ComObject WScript.Shell
+    $bat = Join-Path $ModHome 'play.bat'
+    foreach ($f in Get-ChildItem -LiteralPath $desk -Filter 'Where Winds Meet (Thai)*.lnk' -File) {
+        $s = $ws.CreateShortcut($f.FullName)
+        if ($s.TargetPath -ne $bat) { continue }
+        $g = if ($s.Arguments -match '--game\s+"([^"]+)"') { Norm-Path $Matches[1] } else { '' }
+        @{ Path = $f.FullName; Game = $g }
+    }
+}
+function New-PlayShortcut([string]$game) {
+    $desk = Get-Desktop
+    $mine = @(Get-PlayShortcuts | Where-Object { $_.Game -eq $game -or -not $_.Game })
+    if ($mine.Count) { $lnk = $mine[0].Path }
+    else {
+        $lnk = Join-Path $desk $ShortcutName
+        if (Test-Path -LiteralPath $lnk) { $lnk = Join-Path $desk ('Where Winds Meet (Thai) - ' + (Split-Path $game -Leaf) + '.lnk') }
+    }
     $ws = New-Object -ComObject WScript.Shell
     $s = $ws.CreateShortcut($lnk)
     $s.TargetPath = Join-Path $ModHome 'play.bat'
+    $s.Arguments = "--game `"$game`""
     $s.WorkingDirectory = $ModHome
     $s.WindowStyle = 7   # เปิดหน้าต่างแบบย่อ
     $s.Description = 'Check the Thai mod, then start Where Winds Meet'
@@ -345,22 +439,30 @@ function Find-Update([hashtable]$orig, [version]$minVersion) {
     return $null
 }
 # ดาวน์โหลด + ตรวจ แล้วคืนโฟลเดอร์ data ที่ตรวจแล้ว (อยู่ใน $tmp)
+$script:Fetched = @{}   # url -> โฟลเดอร์ data ที่โหลดแล้วในรอบนี้ (ลงหลายเกมไม่ต้องโหลดซ้ำ)
 function Get-Update($u, [string]$tmp) {
-    $zip = Join-Path $tmp 'mod.zip'
-    Say "กำลังดาวน์โหลดม็อดเวอร์ชัน $($u.Version) ..." 'Cyan'
-    Get-Web $u.Url $zip | Out-Null
-    if ((Hash $zip) -ne $u.Man['zip_sha256']) { throw 'ไฟล์ที่ดาวน์โหลดไม่ตรงกับ SHA256 ที่ประกาศไว้' }
-    Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $tmp 'x')
-    $inner = Get-ChildItem -LiteralPath (Join-Path $tmp 'x') -Recurse -Filter 'manifest.txt' |
-        Where-Object { $_.Directory.Name -eq 'data' } | Select-Object -First 1
-    if (-not $inner) { throw 'ไม่พบข้อมูลภาษาในไฟล์ที่ดาวน์โหลด' }
-    $m = Get-ModMan (Read-KV $inner.FullName)
+    $dir = $script:Fetched[$u.Url]
+    if (-not $dir -or -not (Test-Path -LiteralPath $dir)) {
+        New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+        $n = $script:Fetched.Count
+        $zip = Join-Path $tmp "mod$n.zip"
+        Say "กำลังดาวน์โหลดม็อดเวอร์ชัน $($u.Version) ..." 'Cyan'
+        Get-Web $u.Url $zip | Out-Null
+        if ((Hash $zip) -ne $u.Man['zip_sha256']) { throw 'ไฟล์ที่ดาวน์โหลดไม่ตรงกับ SHA256 ที่ประกาศไว้' }
+        Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $tmp "x$n")
+        $inner = Get-ChildItem -LiteralPath (Join-Path $tmp "x$n") -Recurse -Filter 'manifest.txt' |
+            Where-Object { $_.Directory.Name -eq 'data' } | Select-Object -First 1
+        if (-not $inner) { throw 'ไม่พบข้อมูลภาษาในไฟล์ที่ดาวน์โหลด' }
+        $dir = $inner.DirectoryName
+        $script:Fetched[$u.Url] = $dir
+    }
+    $m = Get-ModMan (Read-KV (Join-Path $dir 'manifest.txt'))
     foreach ($f in $Files) {
-        if ($m["mod_$f"] -ne $u.Man["mod_$f"] -or (Hash (Join-Path $inner.DirectoryName (Src $m $f))) -ne $m["mod_$f"]) {
+        if ($m["mod_$f"] -ne $u.Man["mod_$f"] -or (Hash (Join-Path $dir (Src $m $f))) -ne $m["mod_$f"]) {
             throw "ไฟล์ $f ในชุดอัปเดตไม่ถูกต้อง"
         }
     }
-    return $inner.DirectoryName
+    return $dir
 }
 
 # ---------------- โหมดต่าง ๆ ----------------
@@ -373,10 +475,10 @@ function Show-LaunchOption {
     Say "  $line" 'White'
 }
 # ตัวติดตั้งของเกม ใส่คำสั่งก่อนเปิดเกมไม่ได้ จึงให้เปิดเกมผ่าน shortcut บน Desktop แทน
-function Show-PlayShortcut([string]$platform) {
+function Show-PlayShortcut([string]$game) {
     Say ''
     try {
-        $lnk = New-PlayShortcut
+        $lnk = New-PlayShortcut $game
         Say 'อยากให้ม็อดอัปเดตเองทุกครั้งที่เล่น (แนะนำ):' 'Cyan'
         Say "  เปิดเกมจาก shortcut บน Desktop: $([IO.Path]::GetFileNameWithoutExtension($lnk))" 'White'
         $how = 'Launcher ของเกม'
@@ -393,13 +495,45 @@ function Main-Install {
     Say '=== ม็อดแปลไทย Where Winds Meet: ติดตั้ง ===' 'Cyan'
     if (Test-GameRunning) { Say 'เกมเปิดอยู่: ปิดเกมก่อน แล้วรัน install.bat ใหม่' 'Red'; $script:ExitCode = 1; return }
     $src = $PSScriptRoot
-    $kitMan = Read-KV (Join-Path $src 'data\manifest.txt')
-    if (-not $kitMan['mod_version']) { Say 'ไม่พบโฟลเดอร์ data: แตกไฟล์ zip ทั้งหมดก่อน แล้วรันจากโฟลเดอร์ที่แตกออกมา' 'Red'; $script:ExitCode = 1; return }
-    $game = Find-Game -Ask
-    if (-not $game) { Say 'ยกเลิก: ไม่ได้ระบุโฟลเดอร์เกม' 'Red'; $script:ExitCode = 1; return }
+    $kitRaw = Read-KV (Join-Path $src 'data\manifest.txt')
+    if (-not $kitRaw['mod_version']) { Say 'ไม่พบโฟลเดอร์ data: แตกไฟล์ zip ทั้งหมดก่อน แล้วรันจากโฟลเดอร์ที่แตกออกมา' 'Red'; $script:ExitCode = 1; return }
+    $games = @(Select-Games)
+    if (-not $games.Count) { Say 'ยกเลิก: ไม่ได้ระบุโฟลเดอร์เกม' 'Red'; $script:ExitCode = 1; return }
+
+    $script:Installed = @()
+    $tmp = Join-Path $env:TEMP ('wwmthai_' + [guid]::NewGuid().ToString('N'))
+    try {
+        foreach ($game in $games) {
+            if ($games.Count -gt 1) { Say ''; Say "----- $game -----" 'Cyan' }
+            try { Install-One $game $src $kitRaw $tmp }
+            catch { Say "เกิดข้อผิดพลาด: $($_.Exception.Message)" 'Red'; Log ($_ | Out-String); $script:ExitCode = 1 }
+        }
+    } finally {
+        Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    }
+    if (-not $script:Installed.Count) { return }
+
+    # คัดลอกสคริปต์ไปเก็บไว้ที่ %LOCALAPPDATA%\WWM-Thai (ลบโฟลเดอร์ที่แตก zip ทิ้งได้หลังติดตั้ง)
+    $same = (Resolve-Path -LiteralPath $src).Path.TrimEnd('\') -eq (Resolve-Path -LiteralPath $ModHome).Path.TrimEnd('\')
+    if (-not $same) {
+        foreach ($n in 'wwm-thai.ps1', 'play.bat', 'uninstall.bat', 'README.txt') {
+            $p = Join-Path $src $n
+            if (Test-Path -LiteralPath $p) { Copy-Item -LiteralPath $p -Destination $ModHome -Force }
+        }
+    }
+    Get-ChildItem -LiteralPath $ModHome -Recurse -File | Unblock-File
+    $steam = $false
+    foreach ($game in $script:Installed) {
+        if ((Get-Platform $game) -eq 'steam') { $steam = $true } else { Show-PlayShortcut $game }
+    }
+    if ($steam) { Show-LaunchOption }
+}
+
+# ติดตั้งลงเกมเดียว (สำเร็จ = เพิ่มเข้า $script:Installed)
+function Install-One([string]$game, [string]$src, [hashtable]$kitRaw, [string]$tmp) {
     $platform = Get-Platform $game
-    Set-Variant $game
-    $kitMan = Get-ModMan $kitMan
+    Set-Game $game
+    $kitMan = Get-ModMan $kitRaw
     Say "พบเกมที่: $game  ($platform)"
     Say "ม็อดเวอร์ชัน: $($kitMan['mod_version'])  (สร้างสำหรับเกมเวอร์ชัน $($kitMan['game_build']))"
     Write-Diagnostics $game $kitMan
@@ -411,57 +545,44 @@ function Main-Install {
 
     # เลือกชุดข้อมูลที่ใหม่สุดที่เข้ากับเกม: release บน GitHub > ที่ติดตั้งไว้แล้ว > ใน zip
     # (รัน install.bat ทับของเดิมได้เสมอ = อัปเดตด้วยมือได้ และไม่ถอยเวอร์ชันลง)
-    $best = $null; $bestVer = [version]'0.0'
+    $best = $null; $bestVer = [version]'0.0'; $checked = ''
     if ($kitOk) { $best = Join-Path $src 'data'; $bestVer = [version]$kitMan['mod_version'] }
     if ($oldOk -and [version]$oldMan['mod_version'] -gt $bestVer) { $best = $DataDir; $bestVer = [version]$oldMan['mod_version'] }
-    $tmp = Join-Path $env:TEMP ('wwmthai_' + [guid]::NewGuid().ToString('N'))
-    try {
-        if ($Repo) {
-            Say 'เช็กเวอร์ชันล่าสุดบน GitHub...' 'Cyan'
-            try {
-                $u = Find-Update $orig $bestVer
-                if ($u) {
-                    New-Item -ItemType Directory -Path $tmp | Out-Null
-                    $best = Get-Update $u $tmp; $bestVer = $u.Version
-                    Say "พบม็อดเวอร์ชันใหม่กว่า: $bestVer (ใช้ตัวนี้แทนของใน zip)" 'Green'
-                } else { if ($best) { Say "ไม่มีเวอร์ชันใหม่กว่า $bestVer" }; Log 'install: no newer release' }
-                $st = Read-KV $StateFile; $st['last_check'] = (Get-Date).ToString('s'); Write-KV $StateFile $st
-            } catch {
-                Say "เช็กอัปเดตไม่สำเร็จ (ใช้ของใน zip แทน): $($_.Exception.Message)" 'Yellow'
-                Log ($_ | Out-String)
-            }
+    if ($Repo) {
+        Say 'เช็กเวอร์ชันล่าสุดบน GitHub...' 'Cyan'
+        try {
+            $u = Find-Update $orig $bestVer
+            if ($u) {
+                $best = Get-Update $u $tmp; $bestVer = $u.Version
+                Say "พบม็อดเวอร์ชันใหม่กว่า: $bestVer (ใช้ตัวนี้แทนของใน zip)" 'Green'
+            } else { if ($best) { Say "ไม่มีเวอร์ชันใหม่กว่า $bestVer" }; Log 'install: no newer release' }
+            $checked = (Get-Date).ToString('s')
+        } catch {
+            Say "เช็กอัปเดตไม่สำเร็จ (ใช้ของใน zip แทน): $($_.Exception.Message)" 'Yellow'
+            Log ($_ | Out-String)
         }
-        if (-not $best) {
-            Say 'ตรวจเวอร์ชันเกม...  ไม่ตรงกับม็อดชุดนี้ (เกมอาจอัปเดตแล้ว)' 'Red'
-            Say 'และยังไม่พบม็อดเวอร์ชันที่ตรงกับเกมบน GitHub: ไม่ได้แก้ไขไฟล์ใด ๆ รอม็อดเวอร์ชันใหม่ก่อน' 'Red'
-            $script:ExitCode = 1; return
-        }
-        Say "ตรวจเวอร์ชันเกม...  ตรงกับม็อด $bestVer" 'Green'
+    }
+    if (-not $best) {
+        Say 'ตรวจเวอร์ชันเกม...  ไม่ตรงกับม็อดชุดนี้ (เกมอาจอัปเดตแล้ว)' 'Red'
+        Say 'และยังไม่พบม็อดเวอร์ชันที่ตรงกับเกมบน GitHub: ไม่ได้แก้ไขไฟล์ใด ๆ รอม็อดเวอร์ชันใหม่ก่อน' 'Red'
+        $script:ExitCode = 1; return
+    }
+    Say "ตรวจเวอร์ชันเกม...  ตรงกับม็อด $bestVer" 'Green'
 
-        # คัดลอกสคริปต์ไปเก็บไว้ที่ %LOCALAPPDATA%\WWM-Thai (ลบโฟลเดอร์ที่แตก zip ทิ้งได้หลังติดตั้ง)
-        $same = (Resolve-Path -LiteralPath $src).Path.TrimEnd('\') -eq (Resolve-Path -LiteralPath $ModHome).Path.TrimEnd('\')
-        if (-not $same) {
-            foreach ($n in 'wwm-thai.ps1', 'play.bat', 'uninstall.bat', 'README.txt') {
-                $p = Join-Path $src $n
-                if (Test-Path -LiteralPath $p) { Copy-Item -LiteralPath $p -Destination $ModHome -Force }
-            }
-        }
-        if ($best -eq $DataDir) {
-            Install-Data $game $oldMan $DataDir   # ของที่ติดตั้งไว้ใหม่สุดอยู่แล้ว: แค่ซ่อมให้ครบ
-            $man = $oldMan
-        } else {
-            $man = Use-Kit $game $oldMan $best
-        }
-        Get-ChildItem -LiteralPath $ModHome -Recurse -File | Unblock-File
-    } finally {
-        Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Force -Path $script:ProfileDir | Out-Null
+    if ($best -eq $DataDir) {
+        Install-Data $game $oldMan $DataDir   # ของที่ติดตั้งไว้ใหม่สุดอยู่แล้ว: แค่ซ่อมให้ครบ
+        $man = $oldMan
+    } else {
+        $man = Use-Kit $game $oldMan $best
     }
     $st = Read-KV $StateFile; $st['game_path'] = $game
+    if ($checked) { $st['last_check'] = $checked }
     if ($script:SA) { $st['sa_patch_ver'] = Get-PatchVer $game }
     Write-KV $StateFile $st
     Say "สำรองไฟล์ต้นฉบับไว้ที่: $BackupDir"
     Say "ติดตั้งสำเร็จ! (ม็อด $($man['mod_version'])) เข้าเกมแล้วตั้งภาษาเป็น ไทย" 'Green'
-    if ($platform -eq 'steam') { Show-LaunchOption } else { Show-PlayShortcut $platform }
+    $script:Installed += $game
 }
 
 function Main-Play {
@@ -469,16 +590,17 @@ function Main-Play {
     # ไม่มี = เปิดจาก shortcut: เช็ก/ซ่อมแล้วสคริปต์นี้เปิดเกมให้ (Steam / launcher ของเกม)
     $launch = -not $GameExe
     if ($launch) {
-        $game = Find-Game
+        $game = if ($Game) { Resolve-GameDir $Game } else { $null }   # shortcut ระบุเกมไว้
+        if (-not $game) { $game = Find-PlayGame }
         if (-not $game) { Say 'หาโฟลเดอร์เกมไม่เจอ: รัน install.bat ก่อน' 'Red'; $script:ExitCode = 1; return }
-        Set-Variant $game
+        Set-Game $game
         try { Update-Mod $game } catch { Say "เกิดข้อผิดพลาด: $($_.Exception.Message)" 'Red'; Log ($_ | Out-String) }
         Start-Game $game
         return
     }
     $game = Resolve-GameDir $GameExe
     if (-not $game) { Say "ไม่พบไฟล์ภาษาของเกมจาก '$GameExe': ข้ามม็อด" 'Yellow'; return }
-    Set-Variant $game
+    Set-Game $game
     Update-Mod $game
 }
 
@@ -487,6 +609,7 @@ function Write-Diagnostics([string]$game, [hashtable]$man) {
     try {
         $bv = Join-Path $game 'Engine\Binaries\Win64r\Built.version'
         $ver = if (Test-Path -LiteralPath $bv) { (Get-Content -LiteralPath $bv -Raw).Trim() } else { '?' }
+        Log "diag: profile=$script:ProfileDir"
         Log "diag: platform=$(Get-Platform $game) variant=$($man['_variant']) game=$game locale=$(Get-LocaleDir $game) built=$ver patch=$(Get-PatchVer $game) mod=$($man['mod_version']) mod_built=$($man['game_build'])"
         foreach ($f in $Files) {
             $h = Hash (GameFile $game $f)
@@ -551,10 +674,22 @@ function Update-Mod([string]$game) {
 function Main-Uninstall {
     Say '=== ม็อดแปลไทย Where Winds Meet: ถอนการติดตั้ง ===' 'Cyan'
     if (Test-GameRunning) { Say 'เกมเปิดอยู่: ปิดเกมก่อน แล้วรัน uninstall.bat ใหม่' 'Red'; $script:ExitCode = 1; return }
-    $game = Find-Game -Ask
-    if (-not $game) { Say 'ยกเลิก: ไม่ได้ระบุโฟลเดอร์เกม' 'Red'; $script:ExitCode = 1; return }
+    $games = @(Select-Games -Installed)
+    if (-not $games.Count) {
+        if (@(Get-ModGames).Count) { Say 'ยกเลิก' 'Red'; $script:ExitCode = 1; return }
+        Say 'ไม่พบเกมที่ลงม็อดไว้' 'Yellow'
+    }
+    foreach ($game in $games) { Uninstall-One $game }
+    if (-not @(Get-ModGames).Count) {
+        foreach ($s in @(Get-PlayShortcuts)) { Remove-Item -LiteralPath $s.Path -Force; Say 'ลบ shortcut บน Desktop แล้ว' }
+    }
+    Say ''
+    Say "ไฟล์ม็อดอยู่ที่ $ModHome (ถ้าไม่ได้ลงม็อดไว้ที่เกมไหนแล้ว ลบทิ้งได้)"
+}
+function Uninstall-One([string]$game) {
+    Say ''
     Say "เกมที่: $game"
-    Set-Variant $game
+    Set-Game $game
     $man = Get-ModMan (Read-KV (Join-Path $DataDir 'manifest.txt'))
     $platform = Get-Platform $game
     if (-not (Restore-Original $game $man)) {
@@ -564,17 +699,18 @@ function Main-Uninstall {
         }
         Say "คืนไฟล์บางไฟล์ไม่ได้: ใช้ $verify" 'Yellow'
         $script:ExitCode = 1
-    } else {
-        Say 'คืนไฟล์ภาษาไทยต้นฉบับของเกมแล้ว' 'Green'
+        return
     }
-    $lnk = Get-ShortcutPath
-    if (Test-Path -LiteralPath $lnk) { Remove-Item -LiteralPath $lnk -Force; Say 'ลบ shortcut บน Desktop แล้ว' }
-    Say ''
+    Say 'คืนไฟล์ภาษาไทยต้นฉบับของเกมแล้ว' 'Green'
+    Remove-Item -LiteralPath $script:ProfileDir -Recurse -Force -ErrorAction SilentlyContinue
+    foreach ($s in @(Get-PlayShortcuts | Where-Object { $_.Game -eq $game })) {
+        Remove-Item -LiteralPath $s.Path -Force; Say 'ลบ shortcut บน Desktop แล้ว'
+    }
     if ($platform -eq 'steam') { Say 'อย่าลืม: ลบบรรทัด play.bat ออกจาก Steam > Properties > Launch Options' 'Cyan' }
-    Say "ไฟล์ม็อดและไฟล์สำรองอยู่ที่ $ModHome (ลบทิ้งได้)"
 }
 
 try {
+    Move-Legacy
     switch ($Mode) {
         'install'   { Main-Install }
         'play'      { Main-Play }
