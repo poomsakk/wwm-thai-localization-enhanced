@@ -85,7 +85,10 @@ git clone https://github.com/poomsakk/wwm-thai-localization-enhanced.git
 
 แต่ละแพลตฟอร์ม:
 
-- **Steam:** แก้ไฟล์ใน `Package\HD\oversea\locale`
+- **Steam:** แก้ไฟล์ใน `Package\HD\oversea\locale` เท่านั้น ได้คำแปลประมาณ 60%
+  - เกมอ่าน `_diff` ใน `LocalData\Patch` ทับ Package แต่แก้ไฟล์นั้นบน Steam ไม่ได้: read-only = เกมเปิดไม่ขึ้น,
+    ไม่ read-only = patcher เขียนทับคืนตอนเปิดเกม (ทดสอบ 2026-11-19, รายละเอียดใน [docs/OVERVIEW.md](docs/OVERVIEW.md))
+  - สคริปต์จึงข้าม `LocalData` บน Steam (`Get-Slots`)
 - **Epic Games:** ไม่รองรับ (ตัดออกแล้ว ไม่มีโค้ดหาเกมหรือเปิดเกมผ่าน Epic)
 - **Launcher ของเกม (standalone):** ไฟล์ภาษาอยู่ใน `LocalData\Patch\HD\oversea\locale`
   - ใช้ `_diff` อีกชุด (`sa_*` ใน manifest และ zip) ซึ่ง build จาก `backup/original/LocalData` ได้โดยไม่ต้องมีเกม standalone ในเครื่อง
@@ -93,8 +96,8 @@ git clone https://github.com/poomsakk/wwm-thai-localization-enhanced.git
   - เมื่อ `LocalData\Patch\patching_version.txt` เปลี่ยน play.bat จะคืนต้นฉบับให้เกมอัปเดตไฟล์ภาษาก่อน แล้วติดตั้งม็อดกลับในรอบถัดไป
   - รายละเอียดการทดสอบอยู่ใน [docs/OVERVIEW.md](docs/OVERVIEW.md)
   - **ทดสอบแล้วเฉพาะแบบ Lite (`wwm_lite`)** แบบ Standard (`wwm_standard`) ยังไม่เคยเห็นไฟล์จริง
-    ถ้า Standard มีไฟล์ภาษาทั้งใน `Package\...` และ `LocalData\Patch\...` สคริปต์จะเลือก `Package` ก่อน
-    (ลำดับใน `$LocaleRels`) ซึ่งอาจไม่ใช่ไฟล์ที่เกมอ่านจริง ต้องเช็กกับเกมจริงก่อนเคลมว่ารองรับ
+    ถ้า Standard มีไฟล์ภาษาทั้งใน `Package\...` และ `LocalData\Patch\...` สคริปต์จะแก้ทั้งสองที่ (ไฟล์ใน LocalData ตั้ง read-only)
+    ต้องเช็กกับเกมจริงก่อนเคลมว่ารองรับ (Standard อาจใช้ patcher แบบ Steam ที่ไม่ยอมไฟล์ read-only)
 
 ทดสอบโดยไม่แตะเกมจริงได้ด้วยตัวแปรสภาพแวดล้อม:
 

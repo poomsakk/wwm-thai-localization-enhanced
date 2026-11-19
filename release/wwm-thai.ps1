@@ -4,11 +4,13 @@
 #  ทำงานด้วย Windows PowerShell ที่มากับ Windows (ไม่ต้องลงโปรแกรมเพิ่ม)
 #  ถูกเรียกจาก install.bat / play.bat / uninstall.bat
 #
-#  ไฟล์ในเกมที่สคริปต์นี้แก้ไข มีแค่ 2 ไฟล์:
-#    <โฟลเดอร์เกม>\Package\HD\oversea\locale\translate_words_map_th          (Steam)
-#    <โฟลเดอร์เกม>\Package\HD\oversea\locale\translate_words_map_th_diff
-#  Launcher ของเกม (standalone) ใช้ LocalData\Patch\HD\oversea\locale แทน
-#  และตั้งไฟล์ม็อดเป็น read-only เพราะ launcher คอยเขียนไฟล์ในโฟลเดอร์นั้นคืน
+#  ไฟล์ในเกมที่สคริปต์นี้แก้ไข: translate_words_map_th และ translate_words_map_th_diff
+#  ในทุกโฟลเดอร์ภาษาที่มีไฟล์นั้นอยู่:
+#    <โฟลเดอร์เกม>\Package\HD\oversea\locale           (ไฟล์ที่มากับเกม: Steam)
+#    <โฟลเดอร์เกม>\LocalData\Patch\HD\oversea\locale   (hot patch ที่เกมโหลดมาเอง: Launcher ของเกม
+#                                                       เกมอ่านไฟล์นี้ทับ Package; บน Steam ม็อดไม่แตะ
+#                                                       เพราะ patcher ในเกมไม่ยอม -> Steam แปลได้ ~60%)
+#  ไฟล์ม็อดใน LocalData ถูกตั้งเป็น read-only เพราะ patcher ของเกมคอยเขียนไฟล์ในโฟลเดอร์นั้นคืน
 #
 #  กติกาความปลอดภัย:
 #   - ก่อนแก้ไฟล์ จะสำรองต้นฉบับไว้ที่ %LOCALAPPDATA%\WWM-Thai\games\<เกม>\backup เสมอ
@@ -29,7 +31,8 @@ try { [Console]::OutputEncoding = [Text.Encoding]::UTF8 } catch {}
 # ---------------- ตั้งค่า ----------------
 $Repo            = ''   # GitHub "owner/repo" สำหรับอัปเดตอัตโนมัติ (ว่าง = ไม่เช็กออนไลน์) — make_release ใส่ให้
 $Files           = @('translate_words_map_th', 'translate_words_map_th_diff')
-# ที่เก็บไฟล์ภาษา: Steam ใช้ Package\HD, ตัวติดตั้งของเกมเอง (standalone) ใช้ LocalData\Patch\HD
+# ที่เก็บไฟล์ภาษา: Package\HD (มากับเกม) และ LocalData\Patch\HD (hot patch: เกมอ่านทับ Package)
+# ม็อดติดตั้งลงทุกที่ที่มีไฟล์อยู่ (ยกเว้น LocalData บน Steam) ไฟล์ไทยหลักอยู่ที่แรกที่มี (Steam: Package, Launcher: LocalData)
 $LocaleRels      = @('Package\HD\oversea\locale', 'LocalData\Patch\HD\oversea\locale')
 $SteamAppId      = '3564740'
 $ShortcutName    = 'Where Winds Meet (Thai).lnk'   # WScript.Shell บันทึกชื่อไฟล์ภาษาไทยไม่ได้
@@ -82,11 +85,6 @@ function Get-LocaleDir([string]$game) {
     }
     return $null
 }
-function GameFile([string]$game, [string]$f) {
-    $d = Get-LocaleDir $game
-    if (-not $d) { $d = Join-Path $game $LocaleRels[0] }
-    return Join-Path $d $f
-}
 function Test-Game([string]$dir) { return [bool](Get-LocaleDir $dir) }
 # launcher.exe ของตัวติดตั้งเกม: <wwm>\Win32\deploy\launcher.exe (โฟลเดอร์เกมคือ <wwm>\wwm_lite หรือ wwm_standard)
 function Get-Launcher([string]$game) {
@@ -96,28 +94,47 @@ function Get-Launcher([string]$game) {
 }
 function Test-GameRunning { return [bool](Get-Process -Name 'wwm' -ErrorAction SilentlyContinue) }
 
-# ---------------- ตัวติดตั้งของเกม (standalone) ----------------
-# ไฟล์ภาษาอยู่ใน LocalData\Patch ซึ่ง launcher/patcher ของเกมคอยเขียนคืน:
-#  - _diff ของ standalone คนละไฟล์กับของ Steam -> manifest มีค่า sa_orig_* / sa_mod_* และไฟล์ data\sa_*
-#  - ไฟล์ม็อดถูกตั้งเป็น read-only (patcher เขียนทับไม่ได้ จะข้ามไปเงียบ ๆ)
+# ---------------- ไฟล์ใน LocalData\Patch (hot patch ของเกม) ----------------
+# ไฟล์ใน LocalData\Patch ถูก patcher ของเกมเขียนคืน และเกมอ่านมันทับไฟล์ใน Package:
+#  - _diff ใน LocalData คนละไฟล์กับใน Package -> manifest มีค่า sa_orig_* / sa_mod_* และไฟล์ data\sa_*
+#  - ไฟล์ม็อดใน LocalData ถูกตั้งเป็น read-only (patcher เขียนทับไม่ได้ จะข้ามไปเงียบ ๆ)
 #  - เกมอัปเดต (patching_version.txt เปลี่ยน) -> คืนต้นฉบับให้ patcher อัปเดตไฟล์ภาษาได้ แล้วค่อยติดตั้งใหม่
-$script:SA = $false
-function Set-Variant([string]$game) { $script:SA = [bool]($game -and ((Get-LocaleDir $game) -like '*\LocalData\*')) }
-# manifest ในมุมของเกมนี้: บน standalone ใช้ค่า sa_* แทน orig_* / mod_* และบอกชื่อไฟล์ข้อมูล (src_*)
-function Get-ModMan([hashtable]$m) {
-    $r = @{}; foreach ($k in $m.Keys) { $r[$k] = $m[$k] }
-    if ($m.ContainsKey('_variant')) { return $r }
-    $r['_variant'] = 'pkg'
-    if ($script:SA -and $m.ContainsKey("sa_orig_$($Files[0])")) {
-        $r['_variant'] = 'sa'
+$script:SA = $false   # เกมนี้มีไฟล์ภาษาไทยใน LocalData\Patch
+function Set-Variant([string]$game) {
+    $script:SA = $false
+    if (-not $game -or (Get-Platform $game) -eq 'steam') { return }
+    foreach ($f in $Files) { if (Test-Path -LiteralPath (Join-Path (Join-Path $game $LocaleRels[1]) $f)) { $script:SA = $true } }
+}
+function Get-ModMan([hashtable]$m) { $r = @{}; foreach ($k in $m.Keys) { $r[$k] = $m[$k] }; return $r }
+# ค่าใน manifest ของไฟล์ $f ($kind = orig / mod): ใน LocalData ใช้ sa_* (manifest เก่าที่ไม่มี sa_* ใช้ค่าปกติ)
+function ManVal([hashtable]$man, [bool]$ld, [string]$f, [string]$kind) {
+    if ($ld -and $man.ContainsKey("sa_orig_$f")) { return $man["sa_${kind}_$f"] }
+    return $man["${kind}_$f"]
+}
+# ไฟล์ภาษาในเกมที่ม็อดดูแล: ทุกไฟล์ใน $Files ที่มีอยู่จริงในแต่ละโฟลเดอร์ภาษา
+#   Id   = pkg:<ไฟล์> หรือ ld:<ไฟล์>    Path = ไฟล์ในเกม    Orig / Mod = SHA256 ที่ manifest บอก
+#   Src  = ชื่อไฟล์ใน data    Bak = ชื่อไฟล์สำรอง (โฟลเดอร์หลักใช้ชื่อเดิม เข้ากับไฟล์สำรองของม็อดเวอร์ชันก่อน)
+#   RO   = ตั้ง read-only (ไฟล์ใน LocalData)
+function Get-Slots([string]$game, [hashtable]$man) {
+    if (-not $game) { return }
+    $primary = Get-LocaleDir $game
+    foreach ($rel in $LocaleRels) {
+        $dir = Join-Path $game $rel
+        $ld = $rel -like 'LocalData\*'
+        # Steam: patcher ในเกมเจอไฟล์ read-only/ไม่ตรงใน LocalData แล้วขึ้น "fetch locale files failed" เข้าเกมไม่ได้
+        # (ทดสอบ 2026-11-19) -> บน Steam ไม่แตะ LocalData จนกว่าจะหาวิธีที่ใช้ได้
+        if ($ld -and $dir -ne $primary -and (Get-Platform $game) -eq 'steam') { continue }
         foreach ($f in $Files) {
-            $r["orig_$f"] = $m["sa_orig_$f"]; $r["mod_$f"] = $m["sa_mod_$f"]
-            if ($m["sa_mod_$f"] -ne $m["mod_$f"]) { $r["src_$f"] = "sa_$f" }
+            $p = Join-Path $dir $f
+            if (-not (Test-Path -LiteralPath $p -PathType Leaf)) { continue }
+            $mod = ManVal $man $ld $f 'mod'
+            $src = if ($ld -and $mod -and $mod -ne $man["mod_$f"]) { "sa_$f" } else { $f }
+            $bak = if ($dir -eq $primary) { $f } elseif ($ld) { "ld_$f" } else { "pkg_$f" }
+            @{ Id = "$(if ($ld) { 'ld' } else { 'pkg' }):$f"; Path = $p; Orig = (ManVal $man $ld $f 'orig'); Mod = $mod
+               Src = $src; Bak = $bak; RO = $ld }
         }
     }
-    return $r
 }
-function Src([hashtable]$man, [string]$f) { if ($man["src_$f"]) { return $man["src_$f"] } else { return $f } }
 function Set-RO([string]$path, [bool]$on) {
     if (Test-Path -LiteralPath $path -PathType Leaf) { (Get-Item -LiteralPath $path).IsReadOnly = $on }
 }
@@ -329,63 +346,71 @@ function New-PlayShortcut([string]$game) {
 # ---------------- สถานะไฟล์ในเกม ----------------
 # แต่ละไฟล์เป็น 'mod' (ของม็อดชุดนี้), 'orig' (ต้นฉบับที่ม็อดชุดนี้รองรับ) หรือ 'other'
 function Get-Status([string]$game, [hashtable]$man) {
-    $states = foreach ($f in $Files) {
-        $h = Hash (GameFile $game $f)
-        if (-not $h) { 'other' } elseif ($h -eq $man["mod_$f"]) { 'mod' } elseif ($h -eq $man["orig_$f"]) { 'orig' } else { 'other' }
+    $slots = @(Get-Slots $game $man)
+    if (-not $slots.Count) { return 'other' }
+    $states = foreach ($s in $slots) {
+        $h = Hash $s.Path
+        if (-not $h) { 'other' } elseif ($h -eq $s.Mod) { 'mod' } elseif ($h -eq $s.Orig) { 'orig' } else { 'other' }
     }
     if ($states -contains 'other') { return 'other' }
     if ($states -contains 'orig') { return 'orig' }
     return 'mod'
 }
-# hash ของ "ต้นฉบับ" ในเกมตอนนี้ (ถ้าไฟล์เป็นของม็อดอยู่ ใช้ค่าต้นฉบับจาก manifest แทน)
+# hash ของ "ต้นฉบับ" ในเกมตอนนี้ ต่อไฟล์ (Id -> hash; ถ้าไฟล์เป็นของม็อดอยู่ ใช้ค่าต้นฉบับจาก manifest แทน)
 function Get-GameOrig([string]$game, [hashtable]$man) {
     $o = @{}
-    foreach ($f in $Files) {
-        $h = Hash (GameFile $game $f)
-        $o[$f] = if ($h -and $h -eq $man["mod_$f"]) { $man["orig_$f"] } else { $h }
+    foreach ($s in @(Get-Slots $game $man)) {
+        $h = Hash $s.Path
+        $o[$s.Id] = if ($h -and $h -eq $s.Mod) { $s.Orig } else { $h }
     }
     return $o
 }
+# ม็อดชุด $man สร้างจากต้นฉบับเดียวกับไฟล์ในเกมทุกไฟล์หรือไม่
 function Test-Compatible([hashtable]$orig, [hashtable]$man) {
-    foreach ($f in $Files) { if (-not $man["orig_$f"] -or $orig[$f] -ne $man["orig_$f"]) { return $false } }
+    if (-not $orig.Count) { return $false }
+    foreach ($id in $orig.Keys) {
+        $ld, $f = $id -split ':', 2
+        $want = ManVal $man ($ld -eq 'ld') $f 'orig'
+        if (-not $want -or $orig[$id] -ne $want) { return $false }
+    }
     return $true
 }
 
 # ---------------- ติดตั้ง / คืนไฟล์ ----------------
 function Install-Data([string]$game, [hashtable]$man, [string]$dataDir) {
     New-Item -ItemType Directory -Force -Path $BackupDir | Out-Null
-    foreach ($f in $Files) {
-        $dst = GameFile $game $f
+    foreach ($s in @(Get-Slots $game $man)) {
+        $dst = $s.Path
         $h = Hash $dst
-        if ($h -eq $man["mod_$f"]) { if ($script:SA) { Set-RO $dst $true }; continue }
-        if ($h -ne $man["orig_$f"]) { throw "ไฟล์ $f ในเกมไม่ตรงกับเวอร์ชันที่ม็อดรองรับ" }
-        $bak = Join-Path $BackupDir $f
+        if ($h -and $h -eq $s.Mod) { if ($s.RO) { Set-RO $dst $true }; continue }
+        if (-not $h -or $h -ne $s.Orig) { throw "ไฟล์ $($s.Id) ในเกมไม่ตรงกับเวอร์ชันที่ม็อดรองรับ" }
+        $bak = Join-Path $BackupDir $s.Bak
         if ((Hash $bak) -ne $h) {
             Copy-Item -LiteralPath $dst -Destination $bak -Force
-            if ((Hash $bak) -ne $h) { throw "สำรองไฟล์ $f ไม่สำเร็จ" }
+            if ((Hash $bak) -ne $h) { throw "สำรองไฟล์ $($s.Id) ไม่สำเร็จ" }
         }
         Set-RO $dst $false
-        Copy-Item -LiteralPath (Join-Path $dataDir (Src $man $f)) -Destination $dst -Force
-        if ((Hash $dst) -ne $man["mod_$f"]) {
+        Copy-Item -LiteralPath (Join-Path $dataDir $s.Src) -Destination $dst -Force
+        if ((Hash $dst) -ne $s.Mod) {
             Copy-Item -LiteralPath $bak -Destination $dst -Force
-            throw "คัดลอกไฟล์ $f ไม่สำเร็จ (คืนไฟล์เดิมให้แล้ว)"
+            throw "คัดลอกไฟล์ $($s.Id) ไม่สำเร็จ (คืนไฟล์เดิมให้แล้ว)"
         }
-        if ($script:SA) { Set-RO $dst $true }
+        if ($s.RO) { Set-RO $dst $true }
     }
 }
 # คืนต้นฉบับให้ทุกไฟล์ที่เป็นของม็อดชุด $man อยู่ — คืน $false ถ้ามีไฟล์ที่คืนไม่ได้
 function Restore-Original([string]$game, [hashtable]$man) {
     $ok = $true
-    foreach ($f in $Files) {
-        $dst = GameFile $game $f
-        if (-not $man["mod_$f"] -or (Hash $dst) -ne $man["mod_$f"]) { continue }
-        $bak = Join-Path $BackupDir $f
-        if ((Hash $bak) -eq $man["orig_$f"]) {
+    foreach ($s in @(Get-Slots $game $man)) {
+        $dst = $s.Path
+        if (-not $s.Mod -or (Hash $dst) -ne $s.Mod) { continue }
+        $bak = Join-Path $BackupDir $s.Bak
+        if ((Hash $bak) -eq $s.Orig) {
             Set-RO $dst $false
             Copy-Item -LiteralPath $bak -Destination $dst -Force
-            if ((Hash $dst) -eq $man["orig_$f"]) { continue }
+            if ((Hash $dst) -eq $s.Orig) { continue }
         }
-        Say "คืนไฟล์ต้นฉบับ $f ไม่ได้" 'Red'
+        Say "คืนไฟล์ต้นฉบับ $($s.Id) ไม่ได้" 'Red'
         $ok = $false
     }
     return $ok
@@ -458,8 +483,12 @@ function Get-Update($u, [string]$tmp) {
     }
     $m = Get-ModMan (Read-KV (Join-Path $dir 'manifest.txt'))
     foreach ($f in $Files) {
-        if ($m["mod_$f"] -ne $u.Man["mod_$f"] -or (Hash (Join-Path $dir (Src $m $f))) -ne $m["mod_$f"]) {
-            throw "ไฟล์ $f ในชุดอัปเดตไม่ถูกต้อง"
+        foreach ($ld in $false, $true) {
+            $mod = ManVal $m $ld $f 'mod'
+            $src = if ($ld -and $mod -ne $m["mod_$f"]) { "sa_$f" } else { $f }
+            if (-not $mod -or $mod -ne (ManVal $u.Man $ld $f 'mod') -or (Hash (Join-Path $dir $src)) -ne $mod) {
+                throw "ไฟล์ $src ในชุดอัปเดตไม่ถูกต้อง"
+            }
         }
     }
     return $dir
@@ -610,11 +639,11 @@ function Write-Diagnostics([string]$game, [hashtable]$man) {
         $bv = Join-Path $game 'Engine\Binaries\Win64r\Built.version'
         $ver = if (Test-Path -LiteralPath $bv) { (Get-Content -LiteralPath $bv -Raw).Trim() } else { '?' }
         Log "diag: profile=$script:ProfileDir"
-        Log "diag: platform=$(Get-Platform $game) variant=$($man['_variant']) game=$game locale=$(Get-LocaleDir $game) built=$ver patch=$(Get-PatchVer $game) mod=$($man['mod_version']) mod_built=$($man['game_build'])"
-        foreach ($f in $Files) {
-            $h = Hash (GameFile $game $f)
-            $what = if (-not $h) { 'MISSING' } elseif ($h -eq $man["orig_$f"]) { 'orig (ok)' } elseif ($h -eq $man["mod_$f"]) { 'mod' } else { 'OTHER' }
-            Log "diag: $f sha256=$h -> $what"
+        Log "diag: platform=$(Get-Platform $game) localdata=$script:SA game=$game locale=$(Get-LocaleDir $game) built=$ver patch=$(Get-PatchVer $game) mod=$($man['mod_version']) mod_built=$($man['game_build'])"
+        foreach ($s in @(Get-Slots $game $man)) {
+            $h = Hash $s.Path
+            $what = if (-not $h) { 'MISSING' } elseif ($h -eq $s.Orig) { 'orig (ok)' } elseif ($h -eq $s.Mod) { 'mod' } else { 'OTHER' }
+            Log "diag: $($s.Id) sha256=$h -> $what"
         }
         $l = Get-Launcher $game
         if ($l) { Log "diag: launcher=$l" }

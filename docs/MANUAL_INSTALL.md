@@ -11,7 +11,7 @@
 
    | แพลตฟอร์ม | โฟลเดอร์ | หาโฟลเดอร์เกมยังไง |
    |---|---|---|
-   | Steam | `<คลังเกม Steam>\steamapps\common\Where Winds Meet\Package\HD\oversea\locale` | Steam > คลิกขวาที่เกม > Manage > Browse local files |
+   | Steam ⚠️ | `<คลังเกม Steam>\steamapps\common\Where Winds Meet\Package\HD\oversea\locale` เท่านั้น (**ห้ามแตะ** `LocalData\Patch\...` บน Steam: ถ้าล็อก Read-only เกมจะเปิดไม่ขึ้น ถ้าไม่ล็อก เกมก็เขียนทับคืน) | Steam > คลิกขวาที่เกม > Manage > Browse local files |
    | Launcher แบบ Lite | `<...>\wwm\wwm_lite\LocalData\Patch\HD\oversea\locale` | |
    | Launcher แบบ Standard ⚠️ | ยังไม่ได้ทดสอบ ไม่รู้ว่าไฟล์ภาษาอยู่ที่ไหนบ้าง (อาจอยู่ทั้งใน `Package\...` และ `LocalData\Patch\...`) | `<...>\wwm\wwm_standard` |
 
@@ -40,13 +40,14 @@
 4. **สำรองไฟล์ 2 ไฟล์นี้ไปเก็บไว้ที่อื่น:** `translate_words_map_th` และ `translate_words_map_th_diff`
 
 5. **ก๊อปไฟล์จาก `data` ของ zip ไปวางทับ**
-   - Steam: `translate_words_map_th` และ `translate_words_map_th_diff`
-   - Launcher: `translate_words_map_th` และ `sa_translate_words_map_th_diff`
-     - เปลี่ยนชื่อตัวหลังเป็น `translate_words_map_th_diff` หลังวาง
+   - Steam (โฟลเดอร์ `Package`): `translate_words_map_th` และ `translate_words_map_th_diff`
+   - Launcher (โฟลเดอร์ `LocalData`): `translate_words_map_th` และ `sa_translate_words_map_th_diff`
+     - เปลี่ยนชื่อ `sa_translate_words_map_th_diff` เป็น `translate_words_map_th_diff` หลังวาง
      - คลิกขวาทั้ง 2 ไฟล์ > Properties > ติ๊ก **Read-only** > OK
        (ถ้าไม่ติ๊ก Launcher จะเขียนกลับเป็นภาษาไทยเดิมตอนเปิดเกม)
 
 6. **เข้าเกม** ตั้งภาษาเป็นภาษาไทย แล้วเปิดแผนที่ ดูภูเขายอดฮิต ต้องขึ้นว่า "เขาปู้เจี้ยน"
+   (บน Steam ข้อความประมาณ 40% จะยังเป็นภาษาไทยเดิมเสมอ เป็นข้อจำกัดของ Steam ดู [README.md](../README.md))
 
 **เมื่อเกมอัปเดต:** ตัวอัปเดตเกมจะเขียนทับไฟล์ กลับเป็นภาษาไทยเดิม
 ให้รอม็อดเวอร์ชันใหม่ แล้วทำข้อ 1–6 ใหม่ (อย่าก๊อปไฟล์ม็อดเก่าทับเกมใหม่)
