@@ -85,6 +85,10 @@ def strip_tags(s):
 
 def categorize(zh):
     core = strip_tags(zh).strip()
+    if not core:
+        # a whole line in <...> is visible text (cutscene inner voice, stage direction), not a tag:
+        # categorize by what is inside the brackets
+        core = re.sub(r"[<>]", "", strip_tags(re.sub(r"<([^<>]*)>", r"\1", zh))).strip()
     n = len(core)
     if n == 0:
         return "empty"
