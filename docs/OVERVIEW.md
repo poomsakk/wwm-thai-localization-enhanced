@@ -76,9 +76,11 @@ Text block (หลัง zstd decompress) = hash table แบบ open addressing
     - สรุป: บน Steam ม็อดแก้แค่ `Package` ได้ประมาณ 60% (สคริปต์ข้าม `LocalData` บน Steam ใน `Get-Slots`)
     - ไม่ทำ: แก้ฐานข้อมูลของ patcher (`LocalData/Patch/Patch.mpkdb`) ให้ยอมรับไฟล์ม็อด = หลบระบบตรวจไฟล์ของเกม เสี่ยงแบน
     - จุดสังเกตใน `_diff` เท่านั้น: 家业 (เมนูบ้าน) เดิม "บ้านช่อง" ม็อด "คฤหาสน์" (Steam จะเห็น "บ้านช่อง" เสมอ)
-- **ตัวติดตั้งของเกมเอง (standalone, beta):** ข้อมูลข้างล่างมาจากแบบ **Lite** (`wwm_lite`) เท่านั้น
-  แบบ **Standard** (`wwm_standard`) ยังไม่ได้ทดสอบ ไม่รู้ว่าไฟล์ภาษาอยู่ที่ไหน
-  - Lite: ไฟล์ภาษาไทยทั้งหมดอยู่ใน `LocalData/Patch` (`Package/HD/oversea/locale` ไม่มีไฟล์ภาษา)
+- **ตัวติดตั้งของเกมเอง (standalone):** ทดสอบในเกมแล้วทั้ง **Lite** (`wwm_lite`) และ **Standard** (`wwm_standard`, 2026-11-21)
+  - ทั้ง 2 แบบ: ไฟล์ภาษาไทยทั้งหมดอยู่ใน `LocalData/Patch` (`Package/HD/oversea/locale` ไม่มีไฟล์ภาษา) ไฟล์ตัวเดียวกันทั้งคู่
+  - ที่อยู่เกม: launcher (`<wwm>\Win32\deploy\launcher.exe`) จดไว้ใน `setting.ini` ข้าง ๆ: `InstallPath` = Standard,
+    `InstallPathLow` = Lite แยกไปอยู่คนละโฟลเดอร์กับ launcher ได้ รายการโปรแกรมของ Windows ไม่มี InstallLocation
+    มีแค่ `UninstallString` / `DisplayIcon` สคริปต์ใช้สองค่านี้หา launcher แล้วอ่าน `setting.ini`
     (ไฟล์หลักตัวเดียวกับ Package ของ Steam + `_diff` ตัวเดียวกับ LocalData ของ Steam)
   - build: `build_mod.bat` สร้าง `work/build/sa_translate_words_map_th_diff` จาก `backup/original/LocalData`
     แล้ว `make_release.py` ใส่ค่า `sa_orig_*` / `sa_mod_*` ใน manifest

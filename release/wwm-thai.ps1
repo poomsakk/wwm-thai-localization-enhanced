@@ -89,8 +89,14 @@ function Test-Game([string]$dir) { return [bool](Get-LocaleDir $dir) }
 # launcher.exe ของตัวติดตั้งเกม: <wwm>\Win32\deploy\launcher.exe (โฟลเดอร์เกมคือ <wwm>\wwm_lite หรือ wwm_standard)
 function Get-Launcher([string]$game) {
     $root = Split-Path $game
-    @((Join-Path $root 'Win32\deploy\launcher.exe'), (Join-Path $root 'launcher.exe'), (Join-Path $game 'launcher.exe')) |
+    $l = @((Join-Path $root 'Win32\deploy\launcher.exe'), (Join-Path $root 'launcher.exe'), (Join-Path $game 'launcher.exe')) |
         Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    if ($l) { return $l }
+    # เกมอยู่คนละโฟลเดอร์กับ launcher: หา launcher ที่ setting.ini บันทึกเกมนี้ไว้ ไม่เจอก็ใช้ launcher ตัวแรกที่มี
+    $all = @(Get-LauncherExes)
+    $g = Norm-Path $game
+    foreach ($x in $all) { if (@(Get-LauncherInstallPaths $x | ForEach-Object { Norm-Path $_ }) -contains $g) { return $x } }
+    if ($all.Count) { return $all[0] }
 }
 function Test-GameRunning { return [bool](Get-Process -Name 'wwm' -ErrorAction SilentlyContinue) }
 
@@ -194,18 +200,25 @@ function Ask([string]$prompt) {
 }
 
 # ---------------- หาโฟลเดอร์เกม (Steam / ตัวติดตั้งของเกม) ----------------
-# แปลงสิ่งที่ผู้ใช้ให้มา (โฟลเดอร์เกม, wwm.exe, launcher.exe หรือโฟลเดอร์ wwm ที่มี wwm_standard) เป็นโฟลเดอร์เกม
+# แปลงสิ่งที่ผู้ใช้ให้มา (โฟลเดอร์เกม, wwm.exe, launcher.exe / uninstaller.exe หรือโฟลเดอร์ wwm) เป็นโฟลเดอร์เกม
+# คืน "ทุก" โฟลเดอร์เกมที่เจอ: โฟลเดอร์ wwm เดียวมีได้ทั้ง wwm_lite และ wwm_standard
 function Resolve-GameDir([string]$p) {
-    if (-not $p) { return $null }
+    if (-not $p) { return }
     $p = $p.Trim().Trim('"')
+    $roots = @($p)
     if (Test-Path -LiteralPath $p -PathType Leaf) {
-        if ((Split-Path $p -Leaf) -ieq 'wwm.exe') { for ($i = 0; $i -lt 4; $i++) { $p = Split-Path $p } }
-        else { $p = Split-Path $p }   # เช่น launcher.exe ของตัวติดตั้งเกม
+        if ((Split-Path $p -Leaf) -ieq 'wwm.exe') { for ($i = 0; $i -lt 4; $i++) { $p = Split-Path $p }; $roots = @($p) }
+        else {
+            # ไฟล์ของตัวติดตั้งเกม: <wwm>\uninstaller.exe หรือ <wwm>\Win32\deploy\launcher.exe -> ไล่ขึ้นไปหาโฟลเดอร์ wwm
+            $roots = @(); $d = Split-Path $p
+            for ($i = 0; $i -lt 3 -and $d; $i++) { $roots += $d; $d = Split-Path $d }
+        }
     }
-    foreach ($c in @($p, (Join-Path $p 'wwm_standard'), (Join-Path $p 'wwm_lite'))) {
-        if (Test-Game $c) { return (Norm-Path $c) }
+    foreach ($r in $roots) {
+        if (Test-Game $r) { return (Norm-Path $r) }
+        $sub = @(foreach ($n in 'wwm_standard', 'wwm_lite') { $c = Join-Path $r $n; if (Test-Game $c) { Norm-Path $c } })
+        if ($sub.Count) { return $sub }
     }
-    return $null
 }
 function Get-SteamGames {
     $libs = @()
@@ -221,23 +234,49 @@ function Get-SteamGames {
     } catch {}
     foreach ($lib in $libs) { Resolve-GameDir (Join-Path $lib 'steamapps\common\Where Winds Meet') }
 }
-function Get-StandaloneGames {
-    # จากรายการโปรแกรมที่ติดตั้ง (Add/Remove Programs)
+# ที่ที่อาจเป็นโฟลเดอร์ของ launcher เกม (โฟลเดอร์ wwm): รายการโปรแกรมของ Windows + ที่ติดตั้งยอดนิยม
+function Get-LauncherRoots {
     $keys = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
             'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
             'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
+    # launcher ของเกมไม่ใส่ InstallLocation: ใช้ที่อยู่ uninstaller.exe / launcher.exe (DisplayIcon) แทน
     foreach ($k in $keys) {
-        Get-ItemProperty -Path $k -ErrorAction SilentlyContinue |
-            Where-Object { $_.DisplayName -match 'Where Winds Meet|燕云十六声' -and $_.InstallLocation } |
-            ForEach-Object { Resolve-GameDir $_.InstallLocation }
-    }
-    # ที่ติดตั้งยอดนิยม
-    foreach ($drive in 'C', 'D', 'E', 'F') {
-        foreach ($rel in 'Program Files\wwm', 'Program Files (x86)\wwm', 'Games\wwm', 'wwm') {
-            $p = "${drive}:\$rel"
-            if (Test-Path -LiteralPath $p) { Resolve-GameDir $p }
+        foreach ($e in @(Get-ItemProperty -Path $k -ErrorAction SilentlyContinue |
+                         Where-Object { $_.DisplayName -match 'Where Winds Meet|燕云十六声' })) {
+            if ($e.InstallLocation) { $e.InstallLocation.Trim().Trim('"') }
+            foreach ($s in $e.UninstallString, $e.DisplayIcon) {
+                if ($s -and $s -match '^\s*"?([^",]+?\.exe)') {
+                    $d = Split-Path $Matches[1]
+                    if ((Split-Path $d -Leaf) -ieq 'deploy') { $d = Split-Path (Split-Path $d) }   # <wwm>\Win32\deploy
+                    $d
+                }
+            }
         }
     }
+    foreach ($drive in 'C', 'D', 'E', 'F') {
+        foreach ($rel in 'Program Files\wwm', 'Program Files (x86)\wwm', 'Games\wwm', 'wwm') { "${drive}:\$rel" }
+    }
+}
+# โฟลเดอร์เกมที่ launcher บันทึกไว้ใน Win32\deploy\setting.ini: InstallPath (Standard), InstallPathLow (Lite)
+# (Lite / Standard แยกไปอยู่คนละโฟลเดอร์กับ launcher ได้)
+function Get-LauncherInstallPaths([string]$launcherExe) {
+    $ini = Join-Path (Split-Path $launcherExe) 'setting.ini'
+    if (-not (Test-Path -LiteralPath $ini)) { return }
+    foreach ($line in Get-Content -LiteralPath $ini -Encoding UTF8 -ErrorAction SilentlyContinue) {
+        if ($line -match '^\s*InstallPath(Low)?\s*=\s*(.+?)\s*$') { $Matches[2] -replace '/', '\' }
+    }
+}
+function Get-LauncherExes {
+    foreach ($r in @(Get-LauncherRoots)) {
+        if (-not $r -or -not (Test-Path -LiteralPath $r)) { continue }
+        foreach ($l in (Join-Path $r 'Win32\deploy\launcher.exe'), (Join-Path $r 'launcher.exe')) {
+            if (Test-Path -LiteralPath $l -PathType Leaf) { Norm-Path $l }
+        }
+    }
+}
+function Get-StandaloneGames {
+    foreach ($r in @(Get-LauncherRoots)) { if ($r -and (Test-Path -LiteralPath $r)) { Resolve-GameDir $r } }
+    foreach ($l in @(Get-LauncherExes)) { foreach ($p in @(Get-LauncherInstallPaths $l)) { Resolve-GameDir $p } }
 }
 function Find-AllGames {
     $seen = @{}
@@ -619,7 +658,7 @@ function Main-Play {
     # ไม่มี = เปิดจาก shortcut: เช็ก/ซ่อมแล้วสคริปต์นี้เปิดเกมให้ (Steam / launcher ของเกม)
     $launch = -not $GameExe
     if ($launch) {
-        $game = if ($Game) { Resolve-GameDir $Game } else { $null }   # shortcut ระบุเกมไว้
+        $game = if ($Game) { @(Resolve-GameDir $Game)[0] } else { $null }   # shortcut ระบุเกมไว้
         if (-not $game) { $game = Find-PlayGame }
         if (-not $game) { Say 'หาโฟลเดอร์เกมไม่เจอ: รัน install.bat ก่อน' 'Red'; $script:ExitCode = 1; return }
         Set-Game $game
@@ -627,7 +666,7 @@ function Main-Play {
         Start-Game $game
         return
     }
-    $game = Resolve-GameDir $GameExe
+    $game = @(Resolve-GameDir $GameExe)[0]
     if (-not $game) { Say "ไม่พบไฟล์ภาษาของเกมจาก '$GameExe': ข้ามม็อด" 'Yellow'; return }
     Set-Game $game
     Update-Mod $game

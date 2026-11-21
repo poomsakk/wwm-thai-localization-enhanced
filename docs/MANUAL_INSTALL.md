@@ -13,7 +13,7 @@
    |---|---|---|
    | Steam ⚠️ | `<คลังเกม Steam>\steamapps\common\Where Winds Meet\Package\HD\oversea\locale` เท่านั้น (**ห้ามแตะ** `LocalData\Patch\...` บน Steam: ถ้าล็อก Read-only เกมจะเปิดไม่ขึ้น ถ้าไม่ล็อก เกมก็เขียนทับคืน) | Steam > คลิกขวาที่เกม > Manage > Browse local files |
    | Launcher แบบ Lite | `<...>\wwm\wwm_lite\LocalData\Patch\HD\oversea\locale` | |
-   | Launcher แบบ Standard ⚠️ | ยังไม่ได้ทดสอบ ไม่รู้ว่าไฟล์ภาษาอยู่ที่ไหนบ้าง (อาจอยู่ทั้งใน `Package\...` และ `LocalData\Patch\...`) | `<...>\wwm\wwm_standard` |
+   | Launcher แบบ Standard | `<...>\wwm\wwm_standard\LocalData\Patch\HD\oversea\locale` | ที่อยู่จริงของทั้ง 2 แบบดูได้จาก `<...>\wwm\Win32\deploy\setting.ini` (`InstallPath` = Standard, `InstallPathLow` = Lite) |
 
 3. **เช็กว่าไฟล์ในเกมตรงกับม็อดเวอร์ชันนี้** (สำคัญที่สุด ห้ามข้าม)
    ไฟล์ม็อดที่ไม่ตรงกับไฟล์ในเกม จะทำให้ข้อความในเกมเพี้ยน
