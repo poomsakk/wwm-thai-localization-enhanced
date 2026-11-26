@@ -46,15 +46,19 @@ VERSION_FILE = GAME / "Engine/Binaries/Win64r/Built.version"
 TOMB = b"\xff"
 LANGS = ("th", "zh_cn", "en")
 
-# the two Thai files we back up / patch:  (game path, backup path, our build output)
+# the Thai files we back up / patch:  (game path, backup path, our build output)
+# Steam keeps the main files in Package; the game's own launcher (Lite / Standard) keeps everything in
+# LocalData\Patch - its main Thai file is the same file as Steam's Package one, so both share one backup.
 THAI_FILES = [
-    (PKG / "translate_words_map_th", BACKUP / "Package/translate_words_map_th", BUILD / "translate_words_map_th"),
+    (config.locale_file(GAME, "translate_words_map_th"), BACKUP / "Package/translate_words_map_th",
+     BUILD / "translate_words_map_th"),
     (PKG / "translate_words_map_th_diff", BACKUP / "Package/translate_words_map_th_diff",
      BUILD / "translate_words_map_th_diff"),
-    (PATCH / "translate_words_map_th_diff", BACKUP / "LocalData/translate_words_map_th_diff", None),
+    (PATCH / "translate_words_map_th_diff", BACKUP / "LocalData/translate_words_map_th_diff",
+     BUILD / "sa_translate_words_map_th_diff"),
 ]
 # source files whose content we track by hash (stored in wwm.db meta)
-TRACKED = [PKG / f"translate_words_map_{l}" for l in LANGS] + \
+TRACKED = [config.locale_file(GAME, f"translate_words_map_{l}") for l in LANGS] + \
           [PATCH / f"translate_words_map_{l}_diff" for l in LANGS] + \
           [PKG / f"translate_words_map_{l}_diff" for l in LANGS]
 
@@ -85,7 +89,8 @@ def effective(lang, backup):
     def path(sub, name, game_dir):
         b = backup / sub / name
         return b if b.exists() else game_dir / name
-    main = load_map(path("Package", f"translate_words_map_{lang}", PKG))
+    name = f"translate_words_map_{lang}"
+    main = load_map(path("Package", name, config.locale_file(GAME, name).parent))
     layers = []
     for sub, game_dir in (("Package", PKG), ("LocalData", PATCH)):
         layers.append({k: v for k, v in load_map(path(sub, f"translate_words_map_{lang}_diff", game_dir)).items()

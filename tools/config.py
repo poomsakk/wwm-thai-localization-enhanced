@@ -19,10 +19,18 @@ ROOT = Path(__file__).resolve().parent.parent
 CFG = ROOT / "local.cfg"
 GAME_NAME = "Where Winds Meet"
 LOCALE_REL = Path("Package/HD/oversea/locale")
+PATCH_REL = Path("LocalData/Patch/HD/oversea/locale")   # the game's own launcher (Lite / Standard) keeps all text here
+
+
+def locale_file(game, name):
+    """A main locale file: Package (Steam) if there, else LocalData\\Patch (launcher install)."""
+    p = Path(game) / LOCALE_REL / name
+    return p if p.exists() else Path(game) / PATCH_REL / name
 
 
 def is_game(p):
-    return bool(p) and (Path(p) / LOCALE_REL / "translate_words_map_zh_cn").exists()
+    # the Chinese source text is needed to work on the translation
+    return bool(p) and locale_file(p, "translate_words_map_zh_cn").exists()
 
 
 def read_cfg():
@@ -90,7 +98,7 @@ def main():
     elif len(sys.argv) == 3 and sys.argv[1] == "set":
         p = Path(sys.argv[2].strip('"'))
         if not is_game(p):
-            sys.exit(f"not a {GAME_NAME} folder (no {LOCALE_REL}\\translate_words_map_zh_cn): {p}")
+            sys.exit(f"not a {GAME_NAME} folder (no translate_words_map_zh_cn in {LOCALE_REL} or {PATCH_REL}): {p}")
         save_game(p)
         print(f"saved: {p}")
     else:
